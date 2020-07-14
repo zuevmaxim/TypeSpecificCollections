@@ -14,7 +14,7 @@ internal class Links(capacity: Int) {
         previous = IntArray(capacity) { FREE }
     }
 
-    private fun next(index: Int): Int {
+    fun next(index: Int): Int {
         checkIndex(index)
         return next[index]
     }
@@ -125,4 +125,4 @@ internal class Links(capacity: Int) {
 
 private const val FREE = -1
 private const val DELETED = -2
-private const val NULL_LINK = -3
+internal const val NULL_LINK = -3
