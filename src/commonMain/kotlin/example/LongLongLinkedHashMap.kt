@@ -1,6 +1,6 @@
 package example
 
-class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float) : MutableMap<Long, Long> {
+class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float) : AbstractMutableMap<Long, Long>() {
     override var size: Int = 0
         private set
 
@@ -31,10 +31,6 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         return links.isPresent(index)
     }
 
-    override fun containsValue(value: Long): Boolean {
-        return values.contains(value)
-    }
-
     override fun get(key: Long): Long? {
         val index = findIndex(key)
         if (!links.isPresent(index)) return null
@@ -42,13 +38,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         return _values[index]
     }
 
-    override fun isEmpty(): Boolean = size == 0
-
     override val entries: MutableSet<MutableMap.MutableEntry<Long, Long>> = LongLongEntrySet()
-    override val keys: MutableSet<Long>
-        get() = TODO("Not yet implemented")
-    override val values: MutableCollection<Long>
-        get() = TODO("Not yet implemented")
 
     override fun clear() {
         links.clear()
@@ -74,12 +64,6 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         return null
     }
 
-    override fun putAll(from: Map<out Long, Long>) {
-        for ((key, value) in from) {
-            put(key, value)
-        }
-    }
-
     override fun remove(key: Long): Long? {
         val index = findIndex(key)
         if (!links.isPresent(index)) return null
@@ -89,15 +73,6 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         links.remove(index)
         checkRehash()
         return value
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (other == null || other !is Map<*, *>) return false
-        return entries == other.entries
-    }
-
-    override fun hashCode(): Int {
-        return entries.hashCode()
     }
 
     private fun findIndex(key: Long): Int {
@@ -134,25 +109,6 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
 
         override fun iterator(): MutableIterator<MutableMap.MutableEntry<Long, Long>> {
             return LongLongIterator()
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other == null || other !is Set<*>) return false
-            if (isEmpty()) return other.isEmpty()
-            if (size != other.size) return false
-            val it = other.iterator()
-            for (x in this) {
-                if (!it.hasNext() || x != it.next()) {
-                    return false
-                }
-            }
-            return true
-        }
-
-        override fun hashCode(): Int {
-            if (isEmpty()) return 0
-            return this.sumBy { it.hashCode() }
         }
 
         private inner class LongLongIterator : MutableIterator<MutableMap.MutableEntry<Long, Long>> {
@@ -192,16 +148,6 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
 
         override fun setValue(newValue: Long): Long {
             return this@LongLongLinkedHashMap.put(key, value)!!
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other == null || other !is Map.Entry<*, *>) return false
-            return key == other.key && value == other.value
-        }
-
-        override fun hashCode(): Int {
-            return key.hashCode() * 31 + value.hashCode()
         }
     }
 }

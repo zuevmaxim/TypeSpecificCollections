@@ -9,7 +9,7 @@ private const val MAX_VALUE = 1000L
 private const val TESTS_COUNT = 1e6.toInt()
 
 class LongLongLinkedHashMapTest {
-    private val expectedHashMap = hashMapOf<Long, Long>()
+    private val expectedHashMap = linkedMapOf<Long, Long>()
     private val actualHashMap = LongLongLinkedHashMap()
     private val random = Random
 
@@ -23,7 +23,7 @@ class LongLongLinkedHashMapTest {
     @Test
     fun correctnessTest() {
         repeat(TESTS_COUNT) {
-            when (random.nextInt(8)) {
+            when (random.nextInt(9)) {
                 0 -> testClear()
                 1 -> testPut()
                 2 -> testGet()
@@ -32,9 +32,11 @@ class LongLongLinkedHashMapTest {
                 5 -> testContainsKey()
                 6 -> testIsEmpty()
                 7 -> testPutAll()
+                8 -> testContainsValue()
             }
             assertEquals<Map<Long, Long>>(expectedHashMap, actualHashMap)
             assertEquals(expectedHashMap.entries, actualHashMap.entries)
+            assertEquals(expectedHashMap.keys, actualHashMap.keys)
         }
     }
 
@@ -80,5 +82,10 @@ class LongLongLinkedHashMapTest {
         val map = generateSequence { createKey() to createValue() }.take(count).toMap()
         expectedHashMap.putAll(map)
         actualHashMap.putAll(map)
+    }
+
+    private fun testContainsValue() {
+        val value = createValue()
+        assertEquals(expectedHashMap.containsValue(value), actualHashMap.containsValue(value))
     }
 }
