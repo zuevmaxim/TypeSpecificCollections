@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
     kotlin("multiplatform") version "1.3.72"
 }
@@ -33,6 +35,14 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-junit"))
             }
+        }
+    }
+}
+
+tasks {
+    "jvmTest"(Test::class) {
+        testLogging {
+            events = setOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
         }
     }
 }
