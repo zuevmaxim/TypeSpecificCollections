@@ -12,7 +12,6 @@ repositories {
 }
 
 kotlin {
-    jvm()
 
     sourceSets {
         val commonMain by getting {
@@ -26,14 +25,18 @@ kotlin {
                 implementation(kotlin("test-annotations-common"))
             }
         }
-        jvm().compilations["main"].defaultSourceSet {
-            dependencies {
-                implementation(kotlin("stdlib-jdk8"))
+        jvm {
+            withJava()
+            compilations["main"].defaultSourceSet {
+                dependencies {
+                    implementation(kotlin("stdlib-jdk8"))
+                }
             }
-        }
-        jvm().compilations["test"].defaultSourceSet {
-            dependencies {
-                implementation(kotlin("test-junit"))
+            compilations["test"].defaultSourceSet {
+                dependencies {
+                    implementation(kotlin("test-junit"))
+                    implementation("com.google.guava:guava-testlib:18.0")
+                }
             }
         }
     }

@@ -111,6 +111,8 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
             return LongLongIterator()
         }
 
+        override fun add(element: MutableMap.MutableEntry<Long, Long>): Boolean = throw UnsupportedOperationException()
+
         private inner class LongLongIterator : MutableIterator<MutableMap.MutableEntry<Long, Long>> {
             private var currentIndex = links.head
             private var lastReturned: LongLongEntry? = null
@@ -136,10 +138,6 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
                 this@LongLongLinkedHashMap.remove(last.key)
             }
         }
-
-        override fun add(element: MutableMap.MutableEntry<Long, Long>): Boolean {
-            return this@LongLongLinkedHashMap.put(element.key, element.value) != null
-        }
     }
 
     private inner class LongLongEntry(override val key: Long) : MutableMap.MutableEntry<Long, Long> {
@@ -149,6 +147,16 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         override fun setValue(newValue: Long): Long {
             return this@LongLongLinkedHashMap.put(key, value)!!
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || other !is Map.Entry<*, *>) return false
+            return key == other.key && value == other.value
+        }
+
+        override fun hashCode(): Int = key.toInt() xor value.hashCode()
+
+        override fun toString(): String = "$key=$value"
     }
 }
 
@@ -165,5 +173,5 @@ private const val DEFAULT_LOAD_FACTOR = 0.75f
 private const val DEFAULT_CAPACITY = 8
 
 private fun chooseCapacityBySize(size: Int, loadFactor: Float): Int {
-    return roundToPowerOfTwo((size / (loadFactor.toDouble() / 2)).toInt())
+    return roundToPowerOfTwo((2.0 * size / loadFactor + 1).toInt())
 }
