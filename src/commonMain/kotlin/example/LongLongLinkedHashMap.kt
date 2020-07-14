@@ -1,22 +1,29 @@
 package example
 
-class LongLongLinkedHashMap(capacity: Int) : MutableMap<Long, Long> {
+class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float) : MutableMap<Long, Long> {
     override var size: Int = 0
         private set
 
-    private var capacity = roundToPowerOfTwo(capacity)
+    private var capacity = roundToPowerOfTwo(initialCapacity)
 
     private var _keys = LongArray(this.capacity)
     private var _values = LongArray(this.capacity)
     private var links = Links(this.capacity)
     private var mask = this.capacity - 1
-    private val upperLoadFactor = DEFAULT_UPPER_LOAD_FACTOR
-    private val lowerLoadFactor = DEFAULT_LOWER_LOAD_FACTOR
     private val currentLoadFactor: Double
         get() = size.toDouble() / capacity
 
     init {
-        require(capacity > 0) { "Capacity must be positive." }
+        require(initialCapacity > 0) { "Capacity must be positive." }
+        require(0 < loadFactor && loadFactor < 1) { "Load factor is out of bounds (0, 1)." }
+    }
+
+    constructor() : this(DEFAULT_CAPACITY)
+    constructor(initialCapacity: Int) : this(initialCapacity, DEFAULT_LOAD_FACTOR)
+    constructor(original: Map<out Long, Long>) : this(original, DEFAULT_LOAD_FACTOR)
+    constructor(original: Map<out Long, Long>, loadFactor: Float) :
+            this(chooseCapacityBySize(original.size, loadFactor)) {
+        putAll(original)
     }
 
     override fun containsKey(key: Long): Boolean {
@@ -25,7 +32,7 @@ class LongLongLinkedHashMap(capacity: Int) : MutableMap<Long, Long> {
     }
 
     override fun containsValue(value: Long): Boolean {
-        TODO("Not yet implemented")
+        return values.contains(value)
     }
 
     override fun get(key: Long): Long? {
@@ -37,8 +44,7 @@ class LongLongLinkedHashMap(capacity: Int) : MutableMap<Long, Long> {
 
     override fun isEmpty(): Boolean = size == 0
 
-    override val entries: MutableSet<MutableMap.MutableEntry<Long, Long>>
-        get() = TODO("Not yet implemented")
+    override val entries: MutableSet<MutableMap.MutableEntry<Long, Long>> = LongLongEntrySet()
     override val keys: MutableSet<Long>
         get() = TODO("Not yet implemented")
     override val values: MutableCollection<Long>
@@ -69,7 +75,6 @@ class LongLongLinkedHashMap(capacity: Int) : MutableMap<Long, Long> {
     }
 
     override fun putAll(from: Map<out Long, Long>) {
-        // TODO check for rehash before
         for ((key, value) in from) {
             put(key, value)
         }
@@ -84,6 +89,15 @@ class LongLongLinkedHashMap(capacity: Int) : MutableMap<Long, Long> {
         links.remove(index)
         checkRehash()
         return value
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is Map<*, *>) return false
+        return entries == other.entries
+    }
+
+    override fun hashCode(): Int {
+        return entries.hashCode()
     }
 
     private fun findIndex(key: Long): Int {
@@ -105,9 +119,91 @@ class LongLongLinkedHashMap(capacity: Int) : MutableMap<Long, Long> {
     }
 
     private fun checkRehash() {
-
+        if (currentLoadFactor < loadFactor) return
+        val map = LongLongLinkedHashMap(this)
+        this.capacity = map.capacity
+        this.links = map.links
+        this._keys = map._keys
+        this._values = map._values
+        this.mask = map.mask
     }
 
+    private inner class LongLongEntrySet : AbstractMutableSet<MutableMap.MutableEntry<Long, Long>>() {
+        override val size: Int
+            get() = this@LongLongLinkedHashMap.size
+
+        override fun iterator(): MutableIterator<MutableMap.MutableEntry<Long, Long>> {
+            return LongLongIterator()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || other !is Set<*>) return false
+            if (isEmpty()) return other.isEmpty()
+            if (size != other.size) return false
+            val it = other.iterator()
+            for (x in this) {
+                if (!it.hasNext() || x != it.next()) {
+                    return false
+                }
+            }
+            return true
+        }
+
+        override fun hashCode(): Int {
+            if (isEmpty()) return 0
+            return this.sumBy { it.hashCode() }
+        }
+
+        private inner class LongLongIterator : MutableIterator<MutableMap.MutableEntry<Long, Long>> {
+            private var currentIndex = links.head
+            private var lastReturned: LongLongEntry? = null
+
+            override fun hasNext(): Boolean {
+                return currentIndex != NULL_LINK
+            }
+
+            override fun next(): MutableMap.MutableEntry<Long, Long> {
+                if (!hasNext()) {
+                    throw NoSuchElementException()
+                }
+                return LongLongEntry(_keys[currentIndex]).also {
+                    currentIndex = links.next(currentIndex)
+                    lastReturned = it
+                }
+            }
+
+            override fun remove() {
+                val last = lastReturned
+                check(last != null) { "Next method has not yet been called, or the remove method has already been called after the last call to the next method" }
+                lastReturned = null
+                this@LongLongLinkedHashMap.remove(last.key)
+            }
+        }
+
+        override fun add(element: MutableMap.MutableEntry<Long, Long>): Boolean {
+            return this@LongLongLinkedHashMap.put(element.key, element.value) != null
+        }
+    }
+
+    private inner class LongLongEntry(override val key: Long) : MutableMap.MutableEntry<Long, Long> {
+        override val value: Long
+            get() = this@LongLongLinkedHashMap[key]!!
+
+        override fun setValue(newValue: Long): Long {
+            return this@LongLongLinkedHashMap.put(key, value)!!
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || other !is Map.Entry<*, *>) return false
+            return key == other.key && value == other.value
+        }
+
+        override fun hashCode(): Int {
+            return key.hashCode() * 31 + value.hashCode()
+        }
+    }
 }
 
 private fun roundToPowerOfTwo(x: Int): Int {
@@ -119,5 +215,9 @@ private fun roundToPowerOfTwo(x: Int): Int {
     return result
 }
 
-private const val DEFAULT_UPPER_LOAD_FACTOR = 0.75
-private const val DEFAULT_LOWER_LOAD_FACTOR = 0.25
+private const val DEFAULT_LOAD_FACTOR = 0.75f
+private const val DEFAULT_CAPACITY = 8
+
+private fun chooseCapacityBySize(size: Int, loadFactor: Float): Int {
+    return roundToPowerOfTwo((size / (loadFactor.toDouble() / 2)).toInt())
+}

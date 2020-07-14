@@ -5,12 +5,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-private const val MAX_VALUE = 200L
-private const val TESTS_COUNT = 10000
+private const val MAX_VALUE = 1000L
+private const val TESTS_COUNT = 1e6.toInt()
 
 class LongLongLinkedHashMapTest {
     private val expectedHashMap = hashMapOf<Long, Long>()
-    private val actualHashMap = LongLongLinkedHashMap(TESTS_COUNT + 1)
+    private val actualHashMap = LongLongLinkedHashMap()
     private val random = Random
 
     @Test
@@ -33,11 +33,13 @@ class LongLongLinkedHashMapTest {
                 6 -> testIsEmpty()
                 7 -> testPutAll()
             }
+            assertEquals<Map<Long, Long>>(expectedHashMap, actualHashMap)
+            assertEquals(expectedHashMap.entries, actualHashMap.entries)
         }
     }
 
-    private fun createKey() = random.nextLong(MAX_VALUE)
-    private fun createValue() = random.nextLong(MAX_VALUE)
+    private fun createKey() = random.nextLong(-MAX_VALUE, MAX_VALUE)
+    private fun createValue() = random.nextLong(-MAX_VALUE, MAX_VALUE)
 
     private fun testClear() {
         expectedHashMap.clear()
