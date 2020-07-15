@@ -4,6 +4,9 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
     override var size: Int = 0
         private set
 
+    /** Number of cells marked as deleted. */
+    private var deletedNumber = 0
+
     private var capacity = roundToPowerOfTwo(initialCapacity)
 
     private var _keys = LongArray(this.capacity)
@@ -11,7 +14,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
     private var links = Links(this.capacity)
     private var mask = this.capacity - 1
     private val currentLoadFactor: Double
-        get() = size.toDouble() / capacity
+        get() = (size + deletedNumber).toDouble() / capacity
 
     init {
         require(initialCapacity > 0) { "Capacity must be positive." }
@@ -56,6 +59,8 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         size++
         if (links.isDeleted(index)) {
             check(_keys[index] == key)
+            deletedNumber--
+            check(deletedNumber >= 0)
         }
         _keys[index] = key
         _values[index] = value
@@ -70,6 +75,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         check(_keys[index] == key)
         val value = _values[index]
         size--
+        deletedNumber++
         links.remove(index)
         checkRehash()
         return value
@@ -95,7 +101,8 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
 
     private fun checkRehash() {
         if (currentLoadFactor < loadFactor) return
-        val map = LongLongLinkedHashMap(this)
+        val map = LongLongLinkedHashMap(this, loadFactor = loadFactor)
+        this.deletedNumber = map.deletedNumber
         this.capacity = map.capacity
         this.links = map.links
         this._keys = map._keys
