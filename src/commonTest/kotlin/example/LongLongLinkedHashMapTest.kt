@@ -19,11 +19,10 @@ class LongLongLinkedHashMapTest {
         { LongLongLinkedHashMap(-1) }
     }
 
-
     @Test
     fun correctnessTest() {
         repeat(TESTS_COUNT) {
-            when (random.nextInt(10)) {
+            when (random.nextInt(9)) {
                 0 -> testClear()
                 1 -> testPut()
                 2 -> testGet()
@@ -33,7 +32,6 @@ class LongLongLinkedHashMapTest {
                 6 -> testIsEmpty()
                 7 -> testPutAll()
                 8 -> testContainsValue()
-                9 -> testEntrySetClear()
             }
             assertEquals<Map<Long, Long>>(expectedHashMap, actualHashMap)
             assertEquals(expectedHashMap.entries, actualHashMap.entries)
@@ -45,8 +43,12 @@ class LongLongLinkedHashMapTest {
     private fun createValue() = random.nextLong(-MAX_VALUE, MAX_VALUE)
 
     private fun testClear() {
-        expectedHashMap.clear()
-        actualHashMap.clear()
+        when (random.nextInt(4)) {
+            0 -> testMapClear()
+            1 -> testEntrySetClear()
+            2 -> testKeysClear()
+            3 -> testValuesClear()
+        }
     }
 
     private fun testPut() {
@@ -67,11 +69,15 @@ class LongLongLinkedHashMapTest {
 
     private fun testSize() {
         assertEquals(expectedHashMap.size, actualHashMap.size)
+        assertEquals(expectedHashMap.entries.size, actualHashMap.entries.size)
+        assertEquals(expectedHashMap.keys.size, actualHashMap.keys.size)
+        assertEquals(expectedHashMap.values.size, actualHashMap.values.size)
     }
 
     private fun testContainsKey() {
         val key = createKey()
         assertEquals(expectedHashMap.containsKey(key), actualHashMap.containsKey(key))
+        assertEquals(expectedHashMap.keys.contains(key), actualHashMap.keys.contains(key))
     }
 
     private fun testIsEmpty() {
@@ -88,10 +94,26 @@ class LongLongLinkedHashMapTest {
     private fun testContainsValue() {
         val value = createValue()
         assertEquals(expectedHashMap.containsValue(value), actualHashMap.containsValue(value))
+        assertEquals(expectedHashMap.values.contains(value), actualHashMap.values.contains(value))
+    }
+
+    private fun testMapClear() {
+        expectedHashMap.clear()
+        actualHashMap.clear()
     }
 
     private fun testEntrySetClear() {
         expectedHashMap.entries.clear()
         actualHashMap.entries.clear()
+    }
+
+    private fun testKeysClear() {
+        expectedHashMap.keys.clear()
+        actualHashMap.keys.clear()
+    }
+
+    private fun testValuesClear() {
+        expectedHashMap.values.clear()
+        actualHashMap.values.clear()
     }
 }

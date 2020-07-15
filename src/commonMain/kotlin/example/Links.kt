@@ -88,13 +88,11 @@ internal class Links(capacity: Int) : Iterable<Int> {
 
     private fun setFree(index: Int) {
         checkIndex(index)
-        previous[index] = FREE
         next[index] = FREE
     }
 
     private fun setDeleted(index: Int) {
         checkIndex(index)
-        previous[index] = DELETED
         next[index] = DELETED
     }
 
