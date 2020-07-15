@@ -13,6 +13,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
     private var _values = LongArray(this.capacity)
     private var links = Links(this.capacity)
     private var mask = this.capacity - 1
+    private var maxDeletedNumber = capacity * loadFactor * DELETED_FACTOR
     private val currentLoadFactor: Double
         get() = (size + deletedNumber).toDouble() / capacity
 
@@ -99,8 +100,14 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         return (index + 1) and mask
     }
 
+    private fun shouldRehash(): Boolean {
+        if (deletedNumber >= maxDeletedNumber) return true
+        if (currentLoadFactor >= loadFactor) return true
+        return false
+    }
+
     private fun checkRehash() {
-        if (currentLoadFactor < loadFactor) return
+        if (!shouldRehash()) return
         val map = LongLongLinkedHashMap(this, loadFactor = loadFactor)
         this.deletedNumber = map.deletedNumber
         this.capacity = map.capacity
@@ -108,6 +115,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         this._keys = map._keys
         this._values = map._values
         this.mask = map.mask
+        this.maxDeletedNumber = map.maxDeletedNumber
     }
 
     private inner class LongLongEntrySet : AbstractMutableSet<MutableMap.MutableEntry<Long, Long>>() {
@@ -178,6 +186,7 @@ private fun roundToPowerOfTwo(x: Int): Int {
 
 private const val DEFAULT_LOAD_FACTOR = 0.75f
 private const val DEFAULT_CAPACITY = 8
+private const val DELETED_FACTOR = 0.5
 
 private fun chooseCapacityBySize(size: Int, loadFactor: Float): Int {
     return roundToPowerOfTwo((2.0 * size / loadFactor + 1).toInt())
