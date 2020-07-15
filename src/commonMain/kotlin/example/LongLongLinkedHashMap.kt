@@ -120,20 +120,20 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
 
         override fun add(element: MutableMap.MutableEntry<Long, Long>): Boolean = throw UnsupportedOperationException()
 
+        override fun clear() = this@LongLongLinkedHashMap.clear()
+
         private inner class LongLongIterator : MutableIterator<MutableMap.MutableEntry<Long, Long>> {
-            private var currentIndex = links.head
+            val iterator = links.iterator()
             private var lastReturned: LongLongEntry? = null
 
-            override fun hasNext(): Boolean {
-                return currentIndex != NULL_LINK
-            }
+            override fun hasNext() = iterator.hasNext()
 
             override fun next(): MutableMap.MutableEntry<Long, Long> {
                 if (!hasNext()) {
                     throw NoSuchElementException()
                 }
+                val currentIndex = iterator.next()
                 return LongLongEntry(_keys[currentIndex]).also {
-                    currentIndex = links.next(currentIndex)
                     lastReturned = it
                 }
             }

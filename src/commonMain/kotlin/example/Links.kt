@@ -1,12 +1,10 @@
 package example
 
-internal class Links(capacity: Int) {
+internal class Links(capacity: Int) : Iterable<Int> {
     private val next: IntArray
     private val previous: IntArray
-    var head = NULL_LINK
-        private set
-    var tail = NULL_LINK
-        private set
+    private var head = NULL_LINK
+    private var tail = NULL_LINK
 
     init {
         require(capacity > 0) { "Capacity must be positive." }
@@ -14,7 +12,61 @@ internal class Links(capacity: Int) {
         previous = IntArray(capacity) { FREE }
     }
 
-    fun next(index: Int): Int {
+    fun add(index: Int) {
+        checkIndex(index)
+        if (tail != NULL_LINK) {
+            setNext(tail, nextValue = index)
+        } else {
+            head = index
+        }
+        setLast(index)
+    }
+
+    fun remove(index: Int) {
+        checkIndex(index)
+        val next = next(index)
+        val prev = previous(index)
+        if (head == index) {
+            head = next
+        }
+        if (tail == index) {
+            tail = prev
+        }
+        if (next != NULL_LINK) {
+            setPrevious(next, prev)
+        }
+        if (prev != NULL_LINK) {
+            setNext(prev, next)
+        }
+        setDeleted(index)
+    }
+
+    fun isFree(index: Int): Boolean {
+        val next = next(index)
+        return next == FREE
+    }
+
+    fun isDeleted(index: Int): Boolean {
+        val next = next(index)
+        return next == DELETED
+    }
+
+    fun isPresent(index: Int): Boolean {
+        val next = next(index)
+        return next >= 0 || next == NULL_LINK
+    }
+
+    fun clear() {
+        for (index in this) {
+            setFree(index)
+        }
+        head = NULL_LINK
+        tail = NULL_LINK
+    }
+
+    override fun iterator(): Iterator<Int> = LinksIterator()
+
+    private fun next(index: Int): Int {
         checkIndex(index)
         return next[index]
     }
@@ -53,73 +105,18 @@ internal class Links(capacity: Int) {
         tail = index
     }
 
-    fun add(index: Int) {
-        checkIndex(index)
-        if (tail != NULL_LINK) {
-            setNext(tail, nextValue = index)
-        } else {
-            head = index
-        }
-        setLast(index)
-    }
-
-    fun remove(index: Int) {
-        checkIndex(index)
-        val next = next(index)
-        val prev = previous(index)
-        if (head == index) {
-            head = next
-        }
-        if (tail == index) {
-            tail = prev
-        }
-        if (next != NULL_LINK) {
-            setPrevious(next, prev)
-        }
-        if (prev != NULL_LINK) {
-            setNext(prev, next)
-        }
-        setDeleted(index)
-    }
-
     private fun checkIndex(index: Int) {
         require(0 <= index && index < next.size) { "Index $index is out of bounds [0, ${next.size}]" }
     }
 
-    fun isFree(index: Int): Boolean {
-        val next = next(index)
-        return next == FREE
-    }
+    private inner class LinksIterator : Iterator<Int> {
+        private var current = head
 
-    fun isDeleted(index: Int): Boolean {
-        val next = next(index)
-        return next == DELETED
-    }
+        override fun hasNext() = current != NULL_LINK
 
-    fun isPresent(index: Int): Boolean {
-        val next = next(index)
-        return next >= 0 || next == NULL_LINK
-    }
-
-    fun hasNext(index: Int): Boolean {
-        val next = next(index)
-        return next != NULL_LINK
-    }
-
-    fun hasPrevious(index: Int): Boolean {
-        val prev = previous(index)
-        return prev != NULL_LINK
-    }
-
-    fun clear() {
-        var index = head
-        while (index != NULL_LINK) {
-            val nextIndex = next(index)
-            setFree(index)
-            index = nextIndex
+        override fun next() = current.also {
+            current = next(current)
         }
-        head = NULL_LINK
-        tail = NULL_LINK
     }
 }
 

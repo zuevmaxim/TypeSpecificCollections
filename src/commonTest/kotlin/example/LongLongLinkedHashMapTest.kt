@@ -11,7 +11,7 @@ private const val TESTS_COUNT = 1e6.toInt()
 class LongLongLinkedHashMapTest {
     private val expectedHashMap = linkedMapOf<Long, Long>()
     private val actualHashMap = LongLongLinkedHashMap()
-    private val random = Random
+    private val random = Random(42)
 
     @Test
     fun invalidCapacityTest() {
