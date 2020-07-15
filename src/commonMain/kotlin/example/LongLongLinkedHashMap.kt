@@ -130,6 +130,12 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
 
         override fun clear() = this@LongLongLinkedHashMap.clear()
 
+        override fun contains(element: MutableMap.MutableEntry<Long, Long>): Boolean {
+            val actualElement = element as Map.Entry<Any?, Any?>
+            if (actualElement.key !is Long || actualElement.value !is Long) return false
+            return this@LongLongLinkedHashMap[element.key] == element.value
+        }
+
         private inner class LongLongIterator : MutableIterator<MutableMap.MutableEntry<Long, Long>> {
             val iterator = links.iterator()
             private var lastReturned: LongLongEntry? = null
