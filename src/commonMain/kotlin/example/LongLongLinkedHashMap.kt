@@ -136,6 +136,16 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
             return this@LongLongLinkedHashMap[element.key] == element.value
         }
 
+        override fun remove(element: MutableMap.MutableEntry<Long, Long>): Boolean {
+            if (!contains(element)) return false
+            check(this@LongLongLinkedHashMap.remove(element.key) == element.value)
+            return true
+        }
+
+        /** Expected to throw [NullPointerException] if [elements] is null, but throws [IllegalArgumentException]. */
+        override fun removeAll(elements: Collection<MutableMap.MutableEntry<Long, Long>>): Boolean =
+            elements.fold(false) { modified, element -> modified or remove(element) }
+
         private inner class LongLongIterator : MutableIterator<MutableMap.MutableEntry<Long, Long>> {
             val iterator = links.iterator()
             private var lastReturned: LongLongEntry? = null
