@@ -9,9 +9,8 @@ def read_file(file_name):
     f.readline()
     for line in f:
         _, sz, method, map_name, _, _, sc, _, _, _ = line.split()
-        sz = int(sz)
-        score = math.log10(float(sc) * sz)
-        size = math.log10(sz)
+        size = math.log10(int(sz))
+        score = float(sc)
         if method not in results:
             results[method] = {}
         method_results = results[method]
@@ -33,7 +32,7 @@ def plot_method(method_results, method):
     plt.title(method)
     plt.legend()
     plt.xlabel('log10 size')
-    plt.ylabel('log10 thrpt')
+    plt.ylabel('Throughput, ops/s')
     plt.savefig('%s.png' % method)
     plt.clf()
 

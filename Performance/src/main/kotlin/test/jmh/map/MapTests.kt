@@ -10,16 +10,27 @@ fun createOperation(operation: String): MapTest = when (operation) {
 interface MapTest {
     fun setUp(keys: LongArray, map: TestingMap, oneFailOutOf: Int)
     fun test(): Any?
-
 }
 
 internal abstract class AbstractMapLongTest : MapTest {
     lateinit var keys: LongArray
 
     lateinit var map: TestingMap
+
+    protected var index = 0
+
     override fun setUp(keys: LongArray, map: TestingMap, oneFailOutOf: Int) {
         this.keys = keys
         this.map = map
+        index = 0
+    }
+
+    override fun test(): Any? {
+        index++
+        if (index == keys.size) {
+            index = 0
+        }
+        return null
     }
 }
 
@@ -31,12 +42,9 @@ internal class MapGetTest : AbstractMapLongTest() {
         }
     }
 
-    override fun test(): Int {
-        var res = 0L
-        for (key in keys) {
-            res = res xor (map.get(key) ?: 0)
-        }
-        return res.toInt()
+    override fun test(): Long? {
+        super.test()
+        return map.get(keys[index])
     }
 
     companion object {
@@ -46,12 +54,9 @@ internal class MapGetTest : AbstractMapLongTest() {
 
 internal class MapPutTest : AbstractMapLongTest() {
     override fun test(): Any? {
-        repeat(2) {
-            for (key in keys) {
-                map.put(key, key)
-            }
-        }
-        return map.size()
+        super.test()
+        val key = keys[index]
+        return map.put(key, key)
     }
 
     companion object {
@@ -60,15 +65,22 @@ internal class MapPutTest : AbstractMapLongTest() {
 }
 
 internal class MapRemoveTest : AbstractMapLongTest() {
+    private var removeIndex = 0
+
+    override fun setUp(keys: LongArray, map: TestingMap, oneFailOutOf: Int) {
+        super.setUp(keys, map, oneFailOutOf)
+        removeIndex = 0
+    }
+
     override fun test(): Any? {
-        var add = 0
-        var remove = 0
-        while (add < keys.size) {
-            map.put(keys[add], keys[add])
-            ++add
-            map.put(keys[add], keys[add])
-            ++add
-            map.remove(keys[remove++])
+        super.test()
+        val key = keys[index]
+        map.put(key, key)
+        if (index and 1 == 0) {
+            map.remove(keys[removeIndex++])
+            if (removeIndex == keys.size) {
+                removeIndex = 0
+            }
         }
         return map.size()
     }
