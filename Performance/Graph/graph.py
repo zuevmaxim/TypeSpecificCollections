@@ -1,4 +1,6 @@
 import math
+import os
+import sys
 
 import matplotlib.pyplot as plt
 
@@ -26,21 +28,24 @@ def plot_map(map_results, map_name):
     plt.plot(sizes, scores, 'o--', label=map_name)
 
 
-def plot_method(method_results, method):
+def plot_method(method_results, method, save_dir):
     for map_name, map_results in method_results.items():
         plot_map(map_results, map_name)
     plt.title(method)
     plt.legend()
     plt.xlabel('log10 size')
     plt.ylabel('Throughput, ops/s')
-    plt.savefig('%s.png' % method)
+    plt.savefig('%s/%s.png' % (save_dir, method))
     plt.clf()
 
 
-def plot(results):
+def plot(results, save_dir):
     for method, method_results in results.items():
-        plot_method(method_results, method)
+        plot_method(method_results, method, save_dir)
 
 
-results = read_file("../build/reports/jmh/results.txt")
-plot(results)
+if __name__ == "__main__":
+    file_name = sys.argv[1]
+    save_dir = sys.argv[2] if len(sys.argv) >= 3 else os.curdir
+    results = read_file(file_name)
+    plot(results, save_dir)
