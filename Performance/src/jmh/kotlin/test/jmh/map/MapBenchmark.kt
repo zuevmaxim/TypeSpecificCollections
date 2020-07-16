@@ -1,0 +1,34 @@
+package test.jmh.map
+
+import org.openjdk.jmh.annotations.*
+import java.util.concurrent.TimeUnit
+
+@State(Scope.Thread)
+@Fork(1, jvmArgsAppend = ["-Xmx30G"])
+internal open class MapBenchmark {
+
+    @Param("10000", "100000", "1000000", "10000000")
+    protected open var aSize = 0
+
+    @Param("get", "put", "remove")
+    protected open var bOperation = ""
+
+    @Param("JAVA", "MY_MAP")
+    protected open var cMapName = ""
+
+    private lateinit var mapTest: MapTest
+
+    @Setup
+    fun setUp() {
+        val map = createImplementation(cMapName)
+        mapTest = createOperation(bOperation)
+        mapTest.setUp(generateKeys(aSize), map, ONE_FAIL_OUT_OF)
+    }
+
+
+    @Benchmark
+    @Measurement(time = 20, timeUnit = TimeUnit.SECONDS)
+    fun test() {
+        mapTest.test()
+    }
+}
