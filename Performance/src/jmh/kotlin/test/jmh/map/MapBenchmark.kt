@@ -12,7 +12,7 @@ internal open class MapBenchmark {
     @Param("get", "put", "remove")
     protected open var bOperation = ""
 
-    @Param("JAVA", "MY_MAP")
+    @Param("JAVA", "MY_MAP", "FastUtil")
     protected open var cMapName = ""
 
     private lateinit var mapTest: MapTest

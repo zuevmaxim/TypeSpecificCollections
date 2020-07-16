@@ -13,6 +13,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(project(":"))
+    implementation("it.unimi.dsi:fastutil:8.2.1")
 }
 
 tasks {

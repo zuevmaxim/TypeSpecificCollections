@@ -1,10 +1,12 @@
 package test.jmh.map
 
 import example.LongLongLinkedHashMap
+import it.unimi.dsi.fastutil.longs.Long2LongLinkedOpenHashMap
 
-fun createImplementation(name: String): TestingMap = when(name) {
+fun createImplementation(name: String): TestingMap = when (name) {
     JavaCollectionsMap.NAME -> JavaCollectionsMap(CAPACITY, LOAD_FACTOR)
     MyMap.NAME -> MyMap(CAPACITY, LOAD_FACTOR)
+    FastUtilMap.NAME -> FastUtilMap(CAPACITY, LOAD_FACTOR)
     else -> error("Unexpected implementation name: $name.")
 }
 
@@ -26,7 +28,16 @@ internal class JavaCollectionsMap(capacity: Int, loadFactor: Float) : AbstractTe
 
 internal class MyMap(capacity: Int, loadFactor: Float) : AbstractTestingMap() {
     override val map = LongLongLinkedHashMap(capacity, loadFactor)
+
     companion object {
         const val NAME = "MY_MAP"
+    }
+}
+
+internal class FastUtilMap(capacity: Int, loadFactor: Float) : AbstractTestingMap() {
+    override val map = Long2LongLinkedOpenHashMap(capacity, loadFactor)
+
+    companion object {
+        const val NAME = "FastUtil"
     }
 }
