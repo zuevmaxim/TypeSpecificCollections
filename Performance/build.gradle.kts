@@ -13,8 +13,6 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(project(":"))
-    testAnnotationProcessor("org.openjdk.jmh:jmh-core:1.22")
-    testAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:1.22")
 }
 
 tasks {
@@ -23,12 +21,5 @@ tasks {
     }
     compileTestKotlin {
         kotlinOptions.jvmTarget = "1.8"
-    }
-    task<Exec>("plot") {
-        workingDir = File("Graph")
-        commandLine("python", "graph.py")
-    }
-    "jmh" {
-        finalizedBy("plot")
     }
 }
