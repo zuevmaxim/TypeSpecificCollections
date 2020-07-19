@@ -1,5 +1,7 @@
 package example
 
+import kotlin.math.max
+
 class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float) : AbstractMutableMap<Long, Long>() {
     override var size: Int = 0
         private set
@@ -185,7 +187,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
             return key == other.key && value == other.value
         }
 
-        override fun hashCode(): Int = key.toInt() xor value.hashCode()
+        override fun hashCode(): Int = key.hashCode() xor value.hashCode()
 
         override fun toString(): String = "$key=$value"
     }
@@ -205,5 +207,5 @@ private const val DEFAULT_CAPACITY = 8
 private const val DELETED_FACTOR = 0.5
 
 private fun chooseCapacityBySize(size: Int, loadFactor: Float): Int {
-    return roundToPowerOfTwo((2.0 * size / loadFactor + 1).toInt())
+    return 2 * roundToPowerOfTwo(max(size / loadFactor.toDouble(), 1.0).toInt())
 }
