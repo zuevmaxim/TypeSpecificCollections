@@ -7,7 +7,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
     /** Number of cells marked as deleted. */
     private var deletedNumber = 0
 
-    private var capacity = roundToPowerOfTwo(initialCapacity)
+    private var capacity = chooseCapacityBySize(initialCapacity, loadFactor)
 
     private var _keys = LongArray(this.capacity)
     private var _values = LongArray(this.capacity)
@@ -25,8 +25,8 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
     constructor() : this(DEFAULT_CAPACITY)
     constructor(initialCapacity: Int) : this(initialCapacity, DEFAULT_LOAD_FACTOR)
     constructor(original: Map<out Long, Long>) : this(original, DEFAULT_LOAD_FACTOR)
-    constructor(original: Map<out Long, Long>, loadFactor: Float) :
-            this(chooseCapacityBySize(original.size, loadFactor)) {
+    private constructor(original: Map<out Long, Long>, loadFactor: Float) :
+            this(original.size, loadFactor) {
         putAll(original)
     }
 
