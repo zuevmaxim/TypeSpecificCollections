@@ -95,7 +95,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
     }
 
     private fun defaultIndex(key: Long): Int {
-        return key.hashCode() and mask
+        return ((key ushr 32) xor key).toInt() and mask
     }
 
     private fun nextIndex(index: Int): Int {
