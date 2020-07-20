@@ -1,26 +1,22 @@
 package example
 
-internal class Links(capacity: Int) : Iterable<Int> {
-    private val next: IntArray
-    private val previous: IntArray
+internal class Links(private val capacity: Int) : Iterable<Int> {
+    private val links = LongArray(capacity)
     private var head = NULL_LINK
     private var tail = NULL_LINK
 
     init {
         require(capacity > 0) { "Capacity must be positive." }
-        next = IntArray(capacity)
-        previous = IntArray(capacity)
     }
 
     fun add(index: Int) {
         checkIndex(index)
+        setPrevNext(index, tail, NULL_LINK)
         if (tail != NULL_LINK) {
-            setNext(tail, nextValue = index)
+            setNext(tail, index)
         } else {
             head = index
         }
-        previous[index] = tail
-        next[index] = NULL_LINK
         tail = index
     }
 
@@ -51,26 +47,30 @@ internal class Links(capacity: Int) : Iterable<Int> {
 
     private fun next(index: Int): Int {
         checkIndex(index)
-        return next[index]
+        return (links[index] ushr SHIFT).toInt()
     }
 
     private fun previous(index: Int): Int {
         checkIndex(index)
-        return previous[index]
+        return links[index].toInt()
     }
 
-    private fun setNext(index: Int, nextValue: Int) {
+    private fun setPrevious(index: Int, prev: Int) {
         checkIndex(index)
-        next[index] = nextValue
+        links[index] = (((links[index] ushr SHIFT) and MASK) shl SHIFT) or (prev.toLong() and MASK)
     }
 
-    private fun setPrevious(index: Int, previousValue: Int) {
+    private fun setNext(index: Int, next: Int) {
         checkIndex(index)
-        previous[index] = previousValue
+        links[index] = (links[index] and MASK) or (next.toLong() shl SHIFT)
+    }
+
+    private fun setPrevNext(index: Int, prev: Int, next: Int) {
+        links[index] = (next.toLong() shl SHIFT) or (prev.toLong() and MASK)
     }
 
     private fun checkIndex(index: Int) {
-        require(0 <= index && index < next.size) { "Index $index is out of bounds [0, ${next.size}]" }
+        require(index in 0 until capacity) { "Index $index is out of bounds [0, $capacity]" }
     }
 
     private inner class LinksIterator : Iterator<Int> {
@@ -85,3 +85,5 @@ internal class Links(capacity: Int) : Iterable<Int> {
 }
 
 private const val NULL_LINK = -1
+private const val MASK = 0xffffffffL
+private const val SHIFT = 32
