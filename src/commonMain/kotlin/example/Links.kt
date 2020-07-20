@@ -8,8 +8,8 @@ internal class Links(capacity: Int) : Iterable<Int> {
 
     init {
         require(capacity > 0) { "Capacity must be positive." }
-        next = IntArray(capacity) { FREE }
-        previous = IntArray(capacity) { FREE }
+        next = IntArray(capacity)
+        previous = IntArray(capacity)
     }
 
     fun add(index: Int) {
@@ -19,7 +19,9 @@ internal class Links(capacity: Int) : Iterable<Int> {
         } else {
             head = index
         }
-        setLast(index)
+        previous[index] = tail
+        next[index] = NULL_LINK
+        tail = index
     }
 
     fun remove(index: Int) {
@@ -38,28 +40,9 @@ internal class Links(capacity: Int) : Iterable<Int> {
         if (prev != NULL_LINK) {
             setNext(prev, next)
         }
-        setDeleted(index)
-    }
-
-    fun isFree(index: Int): Boolean {
-        val next = next(index)
-        return next == FREE
-    }
-
-    fun isDeleted(index: Int): Boolean {
-        val next = next(index)
-        return next == DELETED
-    }
-
-    fun isPresent(index: Int): Boolean {
-        val next = next(index)
-        return next >= 0 || next == NULL_LINK
     }
 
     fun clear() {
-        for (index in this) {
-            setFree(index)
-        }
         head = NULL_LINK
         tail = NULL_LINK
     }
@@ -86,23 +69,6 @@ internal class Links(capacity: Int) : Iterable<Int> {
         previous[index] = previousValue
     }
 
-    private fun setFree(index: Int) {
-        checkIndex(index)
-        next[index] = FREE
-    }
-
-    private fun setDeleted(index: Int) {
-        checkIndex(index)
-        next[index] = DELETED
-    }
-
-    private fun setLast(index: Int) {
-        checkIndex(index)
-        previous[index] = tail
-        next[index] = NULL_LINK
-        tail = index
-    }
-
     private fun checkIndex(index: Int) {
         require(0 <= index && index < next.size) { "Index $index is out of bounds [0, ${next.size}]" }
     }
@@ -118,6 +84,4 @@ internal class Links(capacity: Int) : Iterable<Int> {
     }
 }
 
-private const val FREE = -1
-private const val DELETED = -2
-internal const val NULL_LINK = -3
+private const val NULL_LINK = -1
