@@ -6,7 +6,7 @@ import org.openjdk.jmh.annotations.*
 @Fork(1, jvmArgsAppend = ["-Xmx30G"])
 internal open class MapBenchmark {
 
-    @Param("10000", "100000", "1000000", "10000000")
+    @Param("10000", "31623", "100000", "316228", "1000000", "3162278", "10000000")
     protected open var aSize = 0
 
     @Param("get", "put", "remove")
