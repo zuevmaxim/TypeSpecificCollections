@@ -8,18 +8,14 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
 
     private var _size: Int = 0
 
-    /** Number of cells marked as deleted. */
-    private var deletedNumber = 0
-
     private var capacity = chooseCapacityBySize(initialCapacity, loadFactor)
 
     private var _keys = LongArray(this.capacity) { SPECIAL_KEY }
-    private var _values = LongArray(this.capacity) { FREE_VALUE }
+    private var _values = LongArray(this.capacity)
     private var links = Links(this.capacity)
     private var mask = this.capacity - 1
-    private var maxDeletedNumber = capacity * loadFactor * DELETED_FACTOR
     private val currentLoadFactor: Double
-        get() = (size + deletedNumber).toDouble() / capacity
+        get() = _size.toDouble() / capacity
 
     /** Value mapped to [SPECIAL_KEY]. */
     private var specialKeyValue: Long = 0
@@ -59,7 +55,6 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
     override fun clear() {
         for (index in links) {
             _keys[index] = SPECIAL_KEY
-            _values[index] = FREE_VALUE
         }
         containsSpecialKey = false
         links.clear()
@@ -81,11 +76,6 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
                 .also { _values[index] = value }
         }
         _size++
-        if (isDeleted(index)) {
-            check(_keys[index] == key)
-            deletedNumber--
-            check(deletedNumber >= 0)
-        }
         _keys[index] = key
         _values[index] = value
         links.add(index)
@@ -103,10 +93,9 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         check(_keys[index] == key)
         val value = _values[index]
         _keys[index] = SPECIAL_KEY
-        _values[index] = DELETED_VALUE
         _size--
-        deletedNumber++
         links.remove(index)
+        shiftKeys(index)
         checkRehash()
         return value
     }
@@ -115,11 +104,9 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
 
     private fun isSpecialKey(key: Long) = key == SPECIAL_KEY
     private fun isPresent(index: Int) = !isSpecialKey(_keys[index])
-    private fun isFree(index: Int) = !isPresent(index) && _values[index] == FREE_VALUE
-    private fun isDeleted(index: Int) = !isPresent(index) && _values[index] == DELETED_VALUE
+    private fun isFree(index: Int) = !isPresent(index)
 
     private fun findIndex(key: Long): Int {
-        check(!isSpecialKey(key))
         val default = defaultIndex(key)
         var index = default
         while (!isFree(index) && _keys[index] != key) {
@@ -137,22 +124,41 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         return (index + 1) and mask
     }
 
-    private fun shouldRehash(): Boolean {
-        if (deletedNumber >= maxDeletedNumber) return true
-        if (currentLoadFactor >= loadFactor) return true
-        return false
-    }
+    private fun shouldRehash() = currentLoadFactor >= loadFactor
 
     private fun checkRehash() {
         if (!shouldRehash()) return
         val map = LongLongLinkedHashMap(this, loadFactor = loadFactor)
-        this.deletedNumber = map.deletedNumber
         this.capacity = map.capacity
         this.links = map.links
         this._keys = map._keys
         this._values = map._values
         this.mask = map.mask
-        this.maxDeletedNumber = map.maxDeletedNumber
+    }
+
+    /** Relies on linear [nextIndex]. */
+    private tailrec fun shiftKeys(index: Int) {
+        fun isIndependent(newIndex: Int): Boolean {
+            val default = defaultIndex(_keys[newIndex])
+            return if (newIndex >= index) {
+                default in (index + 1)..newIndex
+            } else {
+                default !in (newIndex + 1)..index
+            }
+        }
+        check(isFree(index))
+        var currIndex = nextIndex(index)
+        while (!isFree(currIndex) && isIndependent(currIndex)) {
+            check(currIndex != index)
+            currIndex = nextIndex(currIndex)
+        }
+        if (!isFree(currIndex)) {
+            _keys[index] = _keys[currIndex]
+            _values[index] = _values[currIndex]
+            _keys[currIndex] = SPECIAL_KEY
+            links.move(currIndex, index)
+            shiftKeys(currIndex)
+        }
     }
 
     private inner class LongLongEntrySet : AbstractMutableSet<MutableMap.MutableEntry<Long, Long>>() {
@@ -239,10 +245,7 @@ private fun roundToPowerOfTwo(x: Int): Int {
 
 private const val DEFAULT_LOAD_FACTOR = 0.75f
 private const val DEFAULT_CAPACITY = 8
-private const val DELETED_FACTOR = 0.5
 private const val SPECIAL_KEY = 0L
-private const val FREE_VALUE = -1L
-private const val DELETED_VALUE = -2L
 
 private fun chooseCapacityBySize(size: Int, loadFactor: Float): Int {
     return 2 * roundToPowerOfTwo(max(size / loadFactor.toDouble(), 1.0).toInt())
