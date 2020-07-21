@@ -43,6 +43,22 @@ internal class Links(private val capacity: Int) : Iterable<Int> {
         tail = NULL_LINK
     }
 
+    fun move(oldIndex: Int, newIndex: Int) {
+        val prev = previous(oldIndex)
+        val next = next(oldIndex)
+        setPrevNext(newIndex, prev, next)
+        if (prev != NULL_LINK) {
+            setNext(prev, newIndex)
+        } else {
+            head = newIndex
+        }
+        if (next != NULL_LINK) {
+            setPrevious(next, newIndex)
+        } else {
+            tail = newIndex
+        }
+    }
+
     override fun iterator(): Iterator<Int> = LinksIterator()
 
     private fun next(index: Int): Int {
@@ -57,7 +73,7 @@ internal class Links(private val capacity: Int) : Iterable<Int> {
 
     private fun setPrevious(index: Int, prev: Int) {
         checkIndex(index)
-        links[index] = (((links[index] ushr SHIFT) and MASK) shl SHIFT) or (prev.toLong() and MASK)
+        setPrevNext(index, prev, next(index))
     }
 
     private fun setNext(index: Int, next: Int) {
