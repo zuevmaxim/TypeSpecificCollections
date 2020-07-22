@@ -9,6 +9,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
     private var _size: Int = 0
 
     private var capacity = chooseCapacityBySize(initialCapacity, loadFactor)
+    private var power = log2(capacity)
 
     private var _keys = LongArray(this.capacity) { SPECIAL_KEY }
     private var _values = LongArray(this.capacity)
@@ -116,8 +117,14 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         return index
     }
 
+    private fun hash(x: Int): Int {
+        return ((x * PHI) ushr (32 - power)).toInt()
+    }
+
+    private fun longHash(key: Long): Int = ((key ushr 32) xor key).toInt()
+
     private fun defaultIndex(key: Long): Int {
-        return ((key ushr 32) xor key).toInt() and mask
+        return hash(longHash(key)) and mask
     }
 
     private fun nextIndex(index: Int): Int {
@@ -130,6 +137,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         if (!shouldRehash()) return
         val map = LongLongLinkedHashMap(this, loadFactor = loadFactor)
         this.capacity = map.capacity
+        this.power = map.power
         this.links = map.links
         this._keys = map._keys
         this._values = map._values
@@ -243,9 +251,21 @@ private fun roundToPowerOfTwo(x: Int): Int {
     return result
 }
 
+private fun log2(x: Int): Int {
+    require(x > 0)
+    var result = 1
+    var power = 0
+    while (result < x) {
+        power++
+        result *= 2
+    }
+    return power
+}
+
 private const val DEFAULT_LOAD_FACTOR = 0.75f
 private const val DEFAULT_CAPACITY = 8
 private const val SPECIAL_KEY = 0L
+private const val PHI = 2654435761
 
 private fun chooseCapacityBySize(size: Int, loadFactor: Float): Int {
     return 2 * roundToPowerOfTwo(max(size / loadFactor.toDouble(), 1.0).toInt())
