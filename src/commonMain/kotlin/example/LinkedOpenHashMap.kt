@@ -1,16 +1,6 @@
 package example
 
-import example.storages.createStorage
 import kotlin.math.max
-
-inline fun <reified K, reified V> createLinkedOpenHashMap(
-    capacity: Int = 8,
-    loadFactor: Float = 0.75f
-): MutableMap<K, V> {
-    val createKeys = createStorage<K>()
-    val createValues = createStorage<V>()
-    return LinkedOpenHashMap(createKeys, createValues, capacity, loadFactor)
-}
 
 class LinkedOpenHashMap<K, V>(
     private val createKeys: (Int) -> Storage<K>,
