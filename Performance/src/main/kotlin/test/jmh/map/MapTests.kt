@@ -1,5 +1,7 @@
 package test.jmh.map
 
+import kotlin.random.Random
+
 fun createOperation(operation: String): MapTest = when (operation) {
     MapGetTest.NAME -> MapGetTest()
     MapPutTest.NAME -> MapPutTest()
@@ -37,8 +39,14 @@ internal abstract class AbstractMapLongTest : MapTest {
 internal class MapGetTest : AbstractMapLongTest() {
     override fun setUp(keys: LongArray, map: TestingMap, oneFailOutOf: Int) {
         super.setUp(keys, map, oneFailOutOf)
-        for (key in keys) {
-            map.put(key + if (key % oneFailOutOf.toLong() == 0L) 1 else 0, key)
+        val random = Random(43)
+        keys.forEachIndexed { index, key ->
+            val k = if (index % oneFailOutOf == 0) {
+                random.nextLong()
+            } else {
+                key
+            }
+            map.put(k, key)
         }
     }
 

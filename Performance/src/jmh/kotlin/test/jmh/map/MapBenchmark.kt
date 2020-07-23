@@ -25,7 +25,7 @@ internal open class MapBenchmark {
     }
 
     @Benchmark
-    fun test() {
-        mapTest.test()
+    fun test(): Any? {
+        return mapTest.test()
     }
 }
