@@ -1,12 +1,14 @@
 package test.jmh.map
 
 import example.LongLongLinkedHashMap
+import example.createLinkedOpenHashMap
 import it.unimi.dsi.fastutil.longs.Long2LongLinkedOpenHashMap
 
 fun createImplementation(name: String): TestingMap = when (name) {
     JavaCollectionsMap.NAME -> JavaCollectionsMap(CAPACITY, LOAD_FACTOR)
     MyMap.NAME -> MyMap(CAPACITY, LOAD_FACTOR)
     FastUtilMap.NAME -> FastUtilMap(CAPACITY, LOAD_FACTOR)
+    MyGenericMap.NAME -> MyGenericMap(CAPACITY, LOAD_FACTOR)
     else -> error("Unexpected implementation name: $name.")
 }
 
@@ -31,6 +33,14 @@ internal class MyMap(capacity: Int, loadFactor: Float) : AbstractTestingMap() {
 
     companion object {
         const val NAME = "MY_MAP"
+    }
+}
+
+internal class MyGenericMap(capacity: Int, loadFactor: Float) : AbstractTestingMap() {
+    override val map = createLinkedOpenHashMap<Long, Long>(capacity, loadFactor)
+
+    companion object {
+        const val NAME = "MY_GENERIC_MAP"
     }
 }
 
