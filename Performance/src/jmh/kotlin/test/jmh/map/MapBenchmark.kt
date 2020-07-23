@@ -15,13 +15,12 @@ internal open class MapBenchmark {
     @Param("JAVA", "MY_MAP", "FastUtil", "MY_GENERIC_MAP")
     protected open var cMapName = ""
 
-    private lateinit var mapTest: MapTest
+    private lateinit var mapTest: MapTest<Int>
 
     @Setup
     fun setUp() {
-        val map = createImplementation(cMapName)
         mapTest = createOperation(bOperation)
-        mapTest.setUp(generateKeys(aSize), map, ONE_FAIL_OUT_OF)
+        mapTest.setUp(generateStorage(aSize), createImplementation(cMapName), ONE_FAIL_OUT_OF)
     }
 
     @Benchmark

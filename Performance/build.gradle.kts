@@ -15,12 +15,3 @@ dependencies {
     implementation(project(":"))
     implementation("it.unimi.dsi:fastutil:8.2.1")
 }
-
-tasks {
-    compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-}

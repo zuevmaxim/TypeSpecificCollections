@@ -1,53 +1,54 @@
 package test.jmh.map
 
-import example.LongLongLinkedHashMap
+import example.createLinkedHashMap
 import example.createLinkedOpenHashMap
+import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap
 import it.unimi.dsi.fastutil.longs.Long2LongLinkedOpenHashMap
 
-fun createImplementation(name: String): TestingMap = when (name) {
+inline fun <reified K> createImplementation(name: String): TestingMap<K> = when (name) {
     JavaCollectionsMap.NAME -> JavaCollectionsMap(CAPACITY, LOAD_FACTOR)
-    MyMap.NAME -> MyMap(CAPACITY, LOAD_FACTOR)
-    FastUtilMap.NAME -> FastUtilMap(CAPACITY, LOAD_FACTOR)
-    MyGenericMap.NAME -> MyGenericMap(CAPACITY, LOAD_FACTOR)
+    MyMap.NAME -> MyMap(createLinkedHashMap(CAPACITY, LOAD_FACTOR))
+    FastUtilMap.NAME -> FastUtilMap(createFastUtilMap(CAPACITY, LOAD_FACTOR))
+    MyGenericMap.NAME -> MyGenericMap(createLinkedOpenHashMap(CAPACITY, LOAD_FACTOR))
     else -> error("Unexpected implementation name: $name.")
 }
 
-internal abstract class AbstractTestingMap : TestingMap {
-    protected abstract val map: MutableMap<Long, Long>
+abstract class AbstractTestingMap<K> : TestingMap<K> {
+    protected abstract val map: MutableMap<K, K>
     override fun size() = map.size
-    override fun get(key: Long) = map[key]
-    override fun put(key: Long, value: Long) = map.put(key, value)
-    override fun remove(key: Long) = map.remove(key)
+    override fun get(key: K) = map[key]
+    override fun put(key: K, value: K) = map.put(key, value)
+    override fun remove(key: K) = map.remove(key)
 }
 
-internal class JavaCollectionsMap(capacity: Int, loadFactor: Float) : AbstractTestingMap() {
-    override val map = LinkedHashMap<Long, Long>(capacity, loadFactor)
+class JavaCollectionsMap<K>(capacity: Int, loadFactor: Float) : AbstractTestingMap<K>() {
+    override val map = LinkedHashMap<K, K>(capacity, loadFactor)
 
     companion object {
         const val NAME = "JAVA"
     }
 }
 
-internal class MyMap(capacity: Int, loadFactor: Float) : AbstractTestingMap() {
-    override val map = LongLongLinkedHashMap(capacity, loadFactor)
-
+class MyMap<K>(override val map: MutableMap<K, K>) : AbstractTestingMap<K>() {
     companion object {
         const val NAME = "MY_MAP"
     }
 }
 
-internal class MyGenericMap(capacity: Int, loadFactor: Float) : AbstractTestingMap() {
-    override val map = createLinkedOpenHashMap<Long, Long>(capacity, loadFactor)
-
+class MyGenericMap<K>(override val map: MutableMap<K, K>) : AbstractTestingMap<K>() {
     companion object {
         const val NAME = "MY_GENERIC_MAP"
     }
 }
 
-internal class FastUtilMap(capacity: Int, loadFactor: Float) : AbstractTestingMap() {
-    override val map = Long2LongLinkedOpenHashMap(capacity, loadFactor)
-
+class FastUtilMap<K>(override val map: MutableMap<K, K>) : AbstractTestingMap<K>() {
     companion object {
         const val NAME = "FastUtil"
     }
 }
+
+inline fun <reified T> createFastUtilMap(capacity: Int, loadFactor: Float): MutableMap<T, T> = when (T::class) {
+    Long::class -> Long2LongLinkedOpenHashMap(capacity, loadFactor)
+    Int::class -> Int2IntLinkedOpenHashMap(capacity, loadFactor)
+    else -> error("Type is not implemented")
+} as MutableMap<T, T>

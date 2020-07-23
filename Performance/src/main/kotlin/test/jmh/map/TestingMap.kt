@@ -1,8 +1,8 @@
 package test.jmh.map
 
-interface TestingMap {
+interface TestingMap<K> {
     fun size(): Int
-    fun get(key: Long): Long?
-    fun put(key: Long, value: Long): Long?
-    fun remove(key: Long): Long?
+    fun get(key: K): K?
+    fun put(key: K, value: K): K?
+    fun remove(key: K): K?
 }
