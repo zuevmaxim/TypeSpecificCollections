@@ -3,7 +3,7 @@
 output_dir="Performance"
 output_file="$output_dir/results.txt"
 jar_path="Performance/build/libs/Performance-1.0-SNAPSHOT-jmh.jar"
-benchmark_name="MapBenchmark"
+benchmark_name="Map"
 
 ./gradlew --stop
 ./gradlew --no-daemon :Performance:clean :Performance:jmhJar &&

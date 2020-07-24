@@ -10,7 +10,8 @@ def read_file(file_name):
     results = {}
     f.readline()
     for line in f:
-        _, sz, method, map_name, _, _, sc, _, _, _ = line.split()
+        name, sz, method, map_name, _, _, sc, _, _, _ = line.split()
+        method = name + ' ' + method
         size = math.log10(int(sz))
         score = float(sc)
         if method not in results:
