@@ -12,7 +12,6 @@ repositories {
 }
 
 kotlin {
-
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -58,11 +57,13 @@ kotlin {
                 }
             }
         }
+        macosX64()
+        linuxX64()
     }
 }
 
 tasks {
-    "jvmTest"(Test::class) {
+    withType(AbstractTestTask::class) {
         testLogging {
             events = setOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
         }
