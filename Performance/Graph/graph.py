@@ -10,13 +10,21 @@ def read_file(file_name):
     results = {}
     f.readline()
     for line in f:
-        name, sz, method, map_name, _, _, sc, _, _, _ = line.split()
+        s = line.split()
+        if len(s) == 10:
+            name, sz, method, map_name, _, _, sc, _, _, m = s
+            y_label = 'Throughput, ' + m
+        elif len(s) == 7:
+            name, sz, method, map_name, _, sc, m = s
+            y_label = m
+        else:
+            raise Exception("Unexpected line size")
         method = name + ' ' + method
         size = math.log10(int(sz))
         score = float(sc)
-        if method not in results:
-            results[method] = {}
-        method_results = results[method]
+        if (method, y_label) not in results:
+            results[(method, y_label)] = {}
+        method_results = results[(method, y_label)]
         if map_name not in method_results:
             method_results[map_name] = []
         map_results = method_results[map_name]
@@ -29,20 +37,21 @@ def plot_map(map_results, map_name):
     plt.plot(sizes, scores, 'o--', label=map_name)
 
 
-def plot_method(method_results, method, save_dir):
+def plot_method(method_results, method, save_dir, y_label):
     for map_name, map_results in method_results.items():
         plot_map(map_results, map_name)
     plt.title(method)
     plt.legend()
     plt.xlabel('log10 size')
-    plt.ylabel('Throughput, ops/s')
+    plt.ylabel(y_label)
     plt.savefig('%s/%s.png' % (save_dir, method))
     plt.clf()
 
 
 def plot(results, save_dir):
     for method, method_results in results.items():
-        plot_method(method_results, method, save_dir)
+        method, y_label = method
+        plot_method(method_results, method, save_dir, y_label)
 
 
 if __name__ == "__main__":
