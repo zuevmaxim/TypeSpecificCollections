@@ -26,16 +26,35 @@ kotlin {
             }
         }
         jvm {
-            withJava()
             compilations["main"].defaultSourceSet {
                 dependencies {
                     implementation(kotlin("stdlib-jdk8"))
                 }
             }
             compilations["test"].defaultSourceSet {
+                withJava()
                 dependencies {
                     implementation(kotlin("test-junit"))
                     implementation("com.google.guava:guava-testlib:18.0")
+                }
+            }
+        }
+        js {
+            nodejs {
+                testTask {
+                    useMocha {
+                        timeout = "1m"
+                    }
+                }
+            }
+            compilations["main"].defaultSourceSet {
+                dependencies {
+                    implementation(kotlin("stdlib-js"))
+                }
+            }
+            compilations["test"].defaultSourceSet {
+                dependencies {
+                    implementation(kotlin("test-js"))
                 }
             }
         }
