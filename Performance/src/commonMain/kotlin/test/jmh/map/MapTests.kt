@@ -37,7 +37,8 @@ internal abstract class AbstractMapTest<K> : MapTest<K> {
     }
 }
 
-fun <K> random(random: Random, clazz: KClass<*>): K = when (clazz) {
+@Suppress("UNCHECKED_CAST", "IMPLICIT_CAST_TO_ANY")
+private fun <K> random(random: Random, clazz: KClass<*>) = when (clazz) {
     Long::class -> random.nextLong()
     Int::class -> random.nextInt()
     else -> error("Type $clazz not implemented.")

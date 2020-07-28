@@ -4,6 +4,7 @@ import kotlin.random.Random
 
 private var random = Random(42)
 
+@Suppress("UNCHECKED_CAST")
 inline fun <reified T> generateStorage(capacity: Int) = when (T::class) {
     Long::class -> LongStorage(generateLongKeys(capacity))
     Int::class -> IntStorage(generateIntKeys(capacity))

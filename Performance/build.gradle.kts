@@ -1,17 +1,78 @@
 plugins {
-    kotlin("jvm")
-    id("me.champeau.gradle.jmh") version "0.5.0"
+    kotlin("multiplatform")
+    id("kotlinx.benchmark") version "0.2.0-dev-8"
 }
-
-group = "org.example"
-version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven("https://dl.bintray.com/kotlin/kotlinx")
 }
 
-dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(project(":"))
-    implementation("it.unimi.dsi:fastutil:8.2.1")
+kotlin {
+    val kotlinxBenchmarkVersion = "0.2.0-dev-8"
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(kotlin("stdlib-common"))
+                implementation(project(":"))
+                implementation("org.jetbrains.kotlinx:kotlinx.benchmark.runtime-metadata:$kotlinxBenchmarkVersion")
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test-common"))
+                implementation(kotlin("test-annotations-common"))
+            }
+        }
+        jvm {
+            compilations["main"].defaultSourceSet {
+                dependencies {
+                    implementation(kotlin("stdlib-jdk8"))
+                    implementation("org.jetbrains.kotlinx:kotlinx.benchmark.runtime-jvm:$kotlinxBenchmarkVersion")
+                }
+            }
+            compilations["test"].defaultSourceSet {
+                dependencies {
+                    implementation(kotlin("test-junit"))
+                }
+            }
+        }
+        js {
+            nodejs()
+            compilations["main"].defaultSourceSet {
+                dependencies {
+                    implementation(kotlin("stdlib-js"))
+                    implementation("org.jetbrains.kotlinx:kotlinx.benchmark.runtime-js:$kotlinxBenchmarkVersion")
+                }
+            }
+            compilations["test"].defaultSourceSet {
+                dependencies {
+                    implementation(kotlin("test-js"))
+                }
+            }
+        }
+        macosX64 {
+            compilations["main"].defaultSourceSet {
+                dependencies {
+                    implementation("org.jetbrains.kotlinx:kotlinx.benchmark.runtime-macosx64:$kotlinxBenchmarkVersion")
+                }
+            }
+        }
+        linuxX64 {
+            compilations["main"].defaultSourceSet {
+                dependencies {
+                    implementation("org.jetbrains.kotlinx:kotlinx.benchmark.runtime-linuxx64:$kotlinxBenchmarkVersion")
+                }
+            }
+        }
+    }
+}
+
+benchmark {
+    targets {
+        register("jvm")
+        register("js")
+        register("macosX64")
+        register("linuxX64")
+    }
 }

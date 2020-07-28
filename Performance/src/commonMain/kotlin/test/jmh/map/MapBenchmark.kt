@@ -1,27 +1,31 @@
 package test.jmh.map
 
-import org.openjdk.jmh.annotations.*
+import kotlinx.benchmark.*
 
-@State(Scope.Thread)
-@Fork(1, jvmArgsAppend = ["-Xmx30G"])
-internal abstract class MapBenchmark<T : Any> {
+
+@State(Scope.Benchmark)
+abstract class MapBenchmark<T : Any> {
 
     @Param("10000", "31623", "100000", "316228", "1000000", "3162278", "10000000")
-    protected open var aSize = 0
+    open var aSize = 0
 
     @Param("get")
-    protected open var bOperation = ""
+    open var bOperation = ""
 
-    @Param("JAVA", "MY_MAP", "FastUtil", "MY_GENERIC_MAP")
-    protected open var cMapName = ""
+    @Param("STD", "MY_MAP", "MY_GENERIC_MAP")
+    open var cMapName: String = ""
 
-    protected lateinit var mapTest: MapTest<T>
+    lateinit var mapTest: MapTest<T>
 
     @Setup
     abstract fun setUp()
 }
 
-internal open class LongMap : MapBenchmark<Long>() {
+@State(Scope.Benchmark)
+@Measurement(iterations = 5, time = 10, timeUnit = BenchmarkTimeUnit.SECONDS)
+@Warmup(iterations = 5)
+@OutputTimeUnit(BenchmarkTimeUnit.MILLISECONDS)
+open class LongMap : MapBenchmark<Long>() {
     @Setup
     override fun setUp() {
         mapTest = createAndSetUpMapTest(aSize, bOperation, cMapName)
@@ -31,7 +35,11 @@ internal open class LongMap : MapBenchmark<Long>() {
     fun test() = mapTest.test()
 }
 
-internal open class IntMap : MapBenchmark<Int>() {
+@State(Scope.Benchmark)
+@Measurement(iterations = 5, time = 10, timeUnit = BenchmarkTimeUnit.SECONDS)
+@Warmup(iterations = 5)
+@OutputTimeUnit(BenchmarkTimeUnit.MILLISECONDS)
+open class IntMap : MapBenchmark<Int>() {
     @Setup
     override fun setUp() {
         mapTest = createAndSetUpMapTest(aSize, bOperation, cMapName)
