@@ -53,3 +53,5 @@ inline fun <reified T : Any> createAndSetUpMapTest(size: Int, operation: String,
     createOperation<T>(operation).apply {
         setUp(generateStorage(size), createImplementation(mapName), ONE_FAIL_OUT_OF)
     }
+
+const val ONE_FAIL_OUT_OF = 2

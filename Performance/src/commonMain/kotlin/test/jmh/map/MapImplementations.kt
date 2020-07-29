@@ -4,9 +4,9 @@ import example.createLinkedHashMap
 import example.createLinkedOpenHashMap
 
 inline fun <reified K> createImplementation(name: String): TestingMap<K> = when (name) {
-    StdCollectionsMap.NAME -> StdCollectionsMap(CAPACITY, LOAD_FACTOR)
-    MyMap.NAME -> MyMap(createLinkedHashMap(CAPACITY, LOAD_FACTOR))
-    MyGenericMap.NAME -> MyGenericMap(createLinkedOpenHashMap(CAPACITY, LOAD_FACTOR))
+    StdCollectionsMap.NAME -> StdCollectionsMap()
+    MyMap.NAME -> MyMap(createLinkedHashMap())
+    MyGenericMap.NAME -> MyGenericMap(createLinkedOpenHashMap())
     else -> error("Unexpected implementation name: $name.")
 }
 
@@ -18,8 +18,8 @@ abstract class AbstractTestingMap<K> : TestingMap<K> {
     override fun remove(key: K) = map.remove(key)
 }
 
-class StdCollectionsMap<K>(capacity: Int, loadFactor: Float) : AbstractTestingMap<K>() {
-    override val map = LinkedHashMap<K, K>(capacity, loadFactor)
+class StdCollectionsMap<K> : AbstractTestingMap<K>() {
+    override val map = LinkedHashMap<K, K>()
 
     companion object {
         const val NAME = "STD"

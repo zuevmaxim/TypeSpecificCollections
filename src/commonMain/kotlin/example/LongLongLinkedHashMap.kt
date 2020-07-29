@@ -262,8 +262,6 @@ private fun log2(x: Int): Int {
     return power
 }
 
-private const val DEFAULT_LOAD_FACTOR = 0.75f
-private const val DEFAULT_CAPACITY = 8
 private const val SPECIAL_KEY = 0L
 private const val PHI = 2654435761
 

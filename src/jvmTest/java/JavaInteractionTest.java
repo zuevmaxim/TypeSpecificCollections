@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.util.Map;
 
 public class JavaInteractionTest {
+    @SuppressWarnings("unchecked")
     private final Map<Long, Long> map = (Map<Long, Long>) new LongLongLinkedHashMap();
 
     @Test
@@ -18,6 +19,7 @@ public class JavaInteractionTest {
     @Test
     public void removeAllThrowsIllegalArgumentException() {
         try {
+            //noinspection ConstantConditions
             map.entrySet().removeAll(null);
             AssertionsKt.fail("IllegalArgumentException expected.");
         } catch (IllegalArgumentException ignored) {

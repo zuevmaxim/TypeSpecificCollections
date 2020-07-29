@@ -12,7 +12,7 @@ fun <K : Any> createOperation(operation: String): MapTest<K> = when (operation) 
 
 interface MapTest<K> {
     fun setUp(keys: Storage<K>, map: TestingMap<K>, oneFailOutOf: Int)
-    fun test(): Any?
+    fun test(): K?
 }
 
 internal abstract class AbstractMapTest<K> : MapTest<K> {
@@ -28,12 +28,11 @@ internal abstract class AbstractMapTest<K> : MapTest<K> {
         index = 0
     }
 
-    override fun test(): Any? {
+    fun increment() {
         index++
         if (index == keys.size) {
             index = 0
         }
-        return null
     }
 }
 
@@ -60,7 +59,7 @@ internal class MapGetTest<K : Any> : AbstractMapTest<K>() {
     }
 
     override fun test(): K? {
-        super.test()
+        increment()
         return map.get(keys.get(index))
     }
 
@@ -70,8 +69,8 @@ internal class MapGetTest<K : Any> : AbstractMapTest<K>() {
 }
 
 internal class MapPutTest<K> : AbstractMapTest<K>() {
-    override fun test(): Any? {
-        super.test()
+    override fun test(): K? {
+        increment()
         val key = keys.get(index)
         return map.put(key, key)
     }
@@ -89,17 +88,17 @@ internal class MapRemoveTest<K> : AbstractMapTest<K>() {
         removeIndex = 0
     }
 
-    override fun test(): Any? {
-        super.test()
+    override fun test(): K? {
+        increment()
         val key = keys.get(index)
-        map.put(key, key)
-        if (index and 1 == 0) {
-            map.remove(keys.get(removeIndex++))
+        return if (index and 1 == 1) {
             if (removeIndex == keys.size) {
                 removeIndex = 0
             }
+            map.remove(keys.get(removeIndex++))
+        } else {
+            map.put(key, key)
         }
-        return map.size()
     }
 
     companion object {

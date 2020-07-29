@@ -49,7 +49,7 @@ private inline fun <reified T : Any> createAndSetUpMapTest(size: Int, operation:
     }
 
 private inline fun <reified K> createImplementationJVM(name: String): TestingMap<K> = if (name == FastUtilMap.NAME) {
-    FastUtilMap(createFastUtilMap(CAPACITY, LOAD_FACTOR))
+    FastUtilMap(createFastUtilMap())
 } else {
     createImplementation(name)
 }
@@ -61,8 +61,8 @@ private class FastUtilMap<K>(override val map: MutableMap<K, K>) : AbstractTesti
 }
 
 @Suppress("UNCHECKED_CAST", "IMPLICIT_CAST_TO_ANY")
-private inline fun <reified T> createFastUtilMap(capacity: Int, loadFactor: Float) = when (T::class) {
-    Long::class -> Long2LongLinkedOpenHashMap(capacity, loadFactor)
-    Int::class -> Int2IntLinkedOpenHashMap(capacity, loadFactor)
+private inline fun <reified T> createFastUtilMap() = when (T::class) {
+    Long::class -> Long2LongLinkedOpenHashMap()
+    Int::class -> Int2IntLinkedOpenHashMap()
     else -> error("Type is not implemented")
 } as MutableMap<T, T>

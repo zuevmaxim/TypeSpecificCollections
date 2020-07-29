@@ -274,8 +274,6 @@ private fun roundToPowerOfTwo(x: Int): Pair<Int, Int> {
     return result to power
 }
 
-private const val DEFAULT_LOAD_FACTOR = 0.75f
-private const val DEFAULT_CAPACITY = 8
 private const val PHI = 2654435761
 
 private fun chooseCapacityBySize(size: Int, loadFactor: Float): Pair<Int, Int> {

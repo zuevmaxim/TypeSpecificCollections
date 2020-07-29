@@ -1,6 +1,7 @@
 package example
 
-class IntIntLinkedHashMap(initialSize: Int, loadFactor: Float) : AbstractMutableMap<Int, Int>() {
+class IntIntLinkedHashMap(initialSize: Int = DEFAULT_CAPACITY, loadFactor: Float = DEFAULT_LOAD_FACTOR) :
+    AbstractMutableMap<Int, Int>() {
     private val map = LongLongLinkedHashMap(initialSize, loadFactor)
 
     override val size: Int
