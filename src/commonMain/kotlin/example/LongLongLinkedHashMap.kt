@@ -118,13 +118,13 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
     }
 
     private fun hash(x: Int): Int {
-        return ((x * PHI) ushr (32 - power)).toInt()
+        return (x * PHI) ushr (32 - power)
     }
 
     private fun longHash(key: Long): Int = ((key ushr 32) xor key).toInt()
 
     private fun defaultIndex(key: Long): Int {
-        return hash(longHash(key)) and mask
+        return hash(longHash(key))
     }
 
     private fun nextIndex(index: Int): Int {
@@ -263,7 +263,7 @@ private fun log2(x: Int): Int {
 }
 
 private const val SPECIAL_KEY = 0L
-private const val PHI = 2654435761
+private const val PHI = -1640531527
 
 private fun chooseCapacityBySize(size: Int, loadFactor: Float): Int {
     return 2 * roundToPowerOfTwo(max(size / loadFactor.toDouble(), 1.0).toInt())
