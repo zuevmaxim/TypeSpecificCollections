@@ -44,8 +44,13 @@ class IntIntLinkedHashMap(initialSize: Int = DEFAULT_CAPACITY, loadFactor: Float
             get() = entry.value.toInt()
 
         override fun setValue(newValue: Int) = entry.setValue(newValue.toLong()).toInt()
-        override fun equals(other: Any?) = entry == other
-        override fun hashCode() = entry.hashCode()
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || other !is Map.Entry<*, *>) return false
+            return key == other.key && value == other.value
+        }
+
+        override fun hashCode(): Int = key.hashCode() xor value.hashCode()
         override fun toString() = entry.toString()
     }
 }

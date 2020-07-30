@@ -6,6 +6,7 @@ import org.openjdk.jmh.infra.Blackhole
 import org.openjdk.jol.info.GraphLayout
 import test.jmh.map.generateLongKeys
 
+@Suppress("FunctionName")
 @State(Scope.Thread)
 @Fork(1, jvmArgsAppend = ["-Xmx4G"])
 open class JVMList {

@@ -1,6 +1,7 @@
 package example
 
 import kotlin.random.Random
+import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -8,11 +9,7 @@ import kotlin.test.assertFailsWith
 private const val MAX_VALUE = 1000000L
 private const val TESTS_COUNT = 1e4.toInt()
 
-class LongLongLinkedHashMapTest {
-    private val expectedHashMap = linkedMapOf<Long, Long>()
-    private val actualHashMap = createLinkedOpenHashMap<Long, Long>()
-    private val random = Random(42)
-
+class MapTest {
     @Test
     fun invalidCapacityTest() {
         assertFailsWith(IllegalArgumentException::class, "Capacity must be positive.")
@@ -20,6 +17,32 @@ class LongLongLinkedHashMapTest {
     }
 
     @Test
+    fun longLongMapTest() {
+        LinkedHashMapTest(createLinkedHashMap<Long, Long>(), Long::class, Long::class).correctnessTest()
+    }
+
+    @Test
+    fun intIntMapTest() {
+        LinkedHashMapTest(createLinkedHashMap<Int, Int>(), Int::class, Int::class).correctnessTest()
+    }
+
+    @Test
+    fun genericMapTest() {
+        LinkedHashMapTest(createLinkedOpenHashMap<Long, Long>(), Long::class, Long::class).correctnessTest()
+        LinkedHashMapTest(createLinkedOpenHashMap<Long, Int>(), Long::class, Int::class).correctnessTest()
+        LinkedHashMapTest(createLinkedOpenHashMap<Int, Long>(), Int::class, Long::class).correctnessTest()
+        LinkedHashMapTest(createLinkedOpenHashMap<Int, Int>(), Int::class, Int::class).correctnessTest()
+    }
+}
+
+class LinkedHashMapTest<K, V>(
+    private val actualHashMap: MutableMap<K, V>,
+    private val keyClass: KClass<*>,
+    private val valueClass: KClass<*>
+) {
+    private val expectedHashMap = linkedMapOf<K, V>()
+    private val random = Random(42)
+
     fun correctnessTest() {
         repeat(TESTS_COUNT) {
             when (random.nextInt(7)) {
@@ -33,14 +56,22 @@ class LongLongLinkedHashMapTest {
             }
             testSize()
             testIsEmpty()
-            assertEquals<Map<Long, Long>>(expectedHashMap, actualHashMap)
-            assertEquals(expectedHashMap.entries, actualHashMap.entries)
+            assertEquals<Map<K, V>>(expectedHashMap, actualHashMap)
             assertEquals(expectedHashMap.keys, actualHashMap.keys)
         }
     }
 
-    private fun createKey() = random.nextLong(-MAX_VALUE, MAX_VALUE)
-    private fun createValue() = random.nextLong(-MAX_VALUE, MAX_VALUE)
+    private fun random(clazz: KClass<*>): Any = when (clazz) {
+        Long::class -> random.nextLong(-MAX_VALUE, MAX_VALUE)
+        Int::class -> random.nextInt(-MAX_VALUE.toInt(), MAX_VALUE.toInt())
+        else -> error("Not implemented")
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun createKey() = random(keyClass) as K
+
+    @Suppress("UNCHECKED_CAST")
+    private fun createValue() = random(valueClass) as V
 
     private fun testClear() {
         when (random.nextInt(4)) {

@@ -65,7 +65,7 @@ kotlin {
 tasks {
     withType(AbstractTestTask::class) {
         testLogging {
-            events = setOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
+            events = setOf(TestLogEvent.FAILED, TestLogEvent.SKIPPED)
         }
     }
 }
