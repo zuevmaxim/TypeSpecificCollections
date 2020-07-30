@@ -14,5 +14,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(project(":Performance"))
+    implementation(project(":"))
     implementation("it.unimi.dsi:fastutil:8.2.1")
+    implementation("org.openjdk.jol:jol-core:0.11")
 }
