@@ -3,6 +3,7 @@ package test.jmh.map
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap
 import it.unimi.dsi.fastutil.longs.Long2LongLinkedOpenHashMap
 import org.openjdk.jmh.annotations.*
+import org.openjdk.jol.info.GraphLayout
 
 @State(Scope.Thread)
 @Fork(1, jvmArgsAppend = ["-Xmx4G"])
@@ -43,10 +44,16 @@ open class JVMIntMap : JVMMap<Int>() {
     fun test() = mapTest.test()
 }
 
-private inline fun <reified T : Any> createAndSetUpMapTest(size: Int, operation: String, mapName: String) =
-    createOperation<T>(operation).apply {
-        setUp(generateStorage(size), createImplementationJVM(mapName), ONE_FAIL_OUT_OF)
+private inline fun <reified T : Any> createAndSetUpMapTest(size: Int, operation: String, mapName: String): MapTest<T> {
+    val testingMap = createImplementationJVM<T>(mapName)
+    return createOperation<T>(operation).apply {
+        setUp(generateStorage(size), testingMap, ONE_FAIL_OUT_OF)
+    }.also {
+        val map = (testingMap as AbstractTestingMap).map
+        val layoutSize = GraphLayout.parseInstance(map).totalSize()
+        println("size = ${map.size} mem = $layoutSize")
     }
+}
 
 private inline fun <reified K> createImplementationJVM(name: String): TestingMap<K> = if (name == FastUtilMap.NAME) {
     FastUtilMap(createFastUtilMap())

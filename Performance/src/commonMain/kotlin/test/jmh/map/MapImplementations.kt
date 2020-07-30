@@ -11,7 +11,7 @@ inline fun <reified K> createImplementation(name: String): TestingMap<K> = when 
 }
 
 abstract class AbstractTestingMap<K> : TestingMap<K> {
-    protected abstract val map: MutableMap<K, K>
+    abstract val map: MutableMap<K, K>
     override fun size() = map.size
     override fun get(key: K) = map[key]
     override fun put(key: K, value: K) = map.put(key, value)
