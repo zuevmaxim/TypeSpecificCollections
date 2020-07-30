@@ -13,7 +13,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
 
     private var _keys = LongArray(this.capacity) { SPECIAL_KEY }
     private var _values = LongArray(this.capacity)
-    private var links = Links(this.capacity)
+    private var links = Links(capacity + 1) // +1 for special key
     private var mask = this.capacity - 1
     private val currentLoadFactor: Double
         get() = _size.toDouble() / capacity
@@ -66,6 +66,9 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
     override fun put(key: Long, value: Long): Long? {
         if (isSpecialKey(key)) {
             return specialKeyValueOrNull().also {
+                if (it == null) {
+                    links.add(capacity)
+                }
                 containsSpecialKey = true
                 specialKeyValue = value
             }
@@ -86,8 +89,12 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
 
     override fun remove(key: Long): Long? {
         if (isSpecialKey(key)) {
-            return specialKeyValueOrNull()
-                .also { containsSpecialKey = false }
+            return specialKeyValueOrNull().also {
+                if (it != null) {
+                    links.remove(capacity)
+                }
+                containsSpecialKey = false
+            }
         }
         val index = findIndex(key)
         if (!isPresent(index)) return null
@@ -169,6 +176,12 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         }
     }
 
+    private fun keyByIndex(index: Int) = if (index == capacity) {
+        SPECIAL_KEY
+    } else {
+        _keys[index]
+    }
+
     private inner class LongLongEntrySet : AbstractMutableSet<MutableMap.MutableEntry<Long, Long>>() {
         override val size: Int
             get() = this@LongLongLinkedHashMap.size
@@ -208,7 +221,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
                     throw NoSuchElementException()
                 }
                 val currentIndex = iterator.next()
-                return LongLongEntry(_keys[currentIndex]).also {
+                return LongLongEntry(keyByIndex(currentIndex)).also {
                     lastReturned = it
                 }
             }
