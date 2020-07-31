@@ -8,6 +8,7 @@ import com.google.common.collect.testing.features.CollectionFeature
 import com.google.common.collect.testing.features.CollectionSize
 import com.google.common.collect.testing.features.MapFeature
 import com.google.common.collect.testing.testers.CollectionRemoveAllTester
+import example.LongLongChainedLinkedHashMap
 import example.createLinkedHashMap
 import example.createLinkedOpenHashMap
 import junit.framework.TestSuite
@@ -40,6 +41,13 @@ object GenericIntIntLinkedHashMapGuavaTest {
     @JvmStatic
     fun suite() = LinkedHashMapGuavaTest()
         .suite(IntIntHashMapTestGenerator { createLinkedOpenHashMap<Int, Int>() as MutableMap<Int?, Int?> })
+}
+
+@RunWith(AllTests::class)
+object LongLongChainedLinkedHashMapGuavaTest {
+    @JvmStatic
+    fun suite() = LinkedHashMapGuavaTest()
+        .suite(LongLongHashMapTestGenerator { LongLongChainedLinkedHashMap() as MutableMap<Long?, Long?> })
 }
 
 class LinkedHashMapGuavaTest {

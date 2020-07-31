@@ -33,6 +33,11 @@ class MapTest {
         LinkedHashMapTest(createLinkedOpenHashMap<Int, Long>(), Int::class, Long::class).correctnessTest()
         LinkedHashMapTest(createLinkedOpenHashMap<Int, Int>(), Int::class, Int::class).correctnessTest()
     }
+
+    @Test
+    fun chainedLongLongMapTest() {
+        LinkedHashMapTest(LongLongChainedLinkedHashMap(), Long::class, Long::class).correctnessTest()
+    }
 }
 
 class LinkedHashMapTest<K, V>(
