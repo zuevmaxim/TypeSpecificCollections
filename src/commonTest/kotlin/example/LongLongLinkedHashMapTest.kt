@@ -6,7 +6,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-private const val MAX_VALUE = 1000000L
+private const val MAX_VALUE = 1000L
 private const val TESTS_COUNT = 1e4.toInt()
 
 class MapTest {

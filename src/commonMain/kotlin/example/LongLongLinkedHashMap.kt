@@ -55,6 +55,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
 
     override fun clear() {
         for (index in links) {
+            if (index == capacity) continue
             _keys[index] = SPECIAL_KEY
         }
         containsSpecialKey = false
