@@ -8,7 +8,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
 
     private var _size: Int = 0
 
-    private var capacity = chooseCapacityBySize(initialCapacity, loadFactor)
+    private var capacity = roundToPowerOfTwo(max(initialCapacity, DEFAULT_CAPACITY))
     private var power = log2(capacity)
 
     private var _keys = LongArray(this.capacity) { SPECIAL_KEY }
@@ -30,8 +30,8 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
     constructor() : this(DEFAULT_CAPACITY)
     constructor(initialCapacity: Int) : this(initialCapacity, DEFAULT_LOAD_FACTOR)
     constructor(original: Map<out Long, Long>) : this(original, DEFAULT_LOAD_FACTOR)
-    private constructor(original: Map<out Long, Long>, loadFactor: Float) :
-            this(original.size, loadFactor) {
+    private constructor(original: Map<out Long, Long>, loadFactor: Float, capacity: Int = original.size) :
+            this(capacity, loadFactor) {
         putAll(original)
     }
 
@@ -143,7 +143,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
 
     private fun checkRehash() {
         if (!shouldRehash()) return
-        val map = LongLongLinkedHashMap(this, loadFactor = loadFactor)
+        val map = LongLongLinkedHashMap(this, loadFactor = loadFactor, capacity = 2 * capacity)
         this.capacity = map.capacity
         this.power = map.power
         this.links = map.links

@@ -1,5 +1,7 @@
 package test.jmh.map
 
+import example.DEFAULT_CAPACITY
+import example.DEFAULT_LOAD_FACTOR
 import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap
 import it.unimi.dsi.fastutil.longs.Long2LongLinkedOpenHashMap
 import org.openjdk.jmh.annotations.*
@@ -69,7 +71,7 @@ private class FastUtilMap<K>(override val map: MutableMap<K, K>) : AbstractTesti
 
 @Suppress("UNCHECKED_CAST", "IMPLICIT_CAST_TO_ANY")
 private inline fun <reified T> createFastUtilMap() = when (T::class) {
-    Long::class -> Long2LongLinkedOpenHashMap()
+    Long::class -> Long2LongLinkedOpenHashMap(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR)
     Int::class -> Int2IntLinkedOpenHashMap()
     else -> error("Type is not implemented")
 } as MutableMap<T, T>
