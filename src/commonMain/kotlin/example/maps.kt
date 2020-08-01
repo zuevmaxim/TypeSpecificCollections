@@ -18,3 +18,9 @@ inline fun <reified K, reified V> createLinkedOpenHashMap(
     val createValues = createStorage<V>()
     return LinkedOpenHashMap(createKeys, createValues, capacity, loadFactor)
 }
+
+@Suppress("UNCHECKED_CAST")
+inline fun <reified K, reified V> createChainedLinkedHashMap() = when {
+    K::class == Long::class && V::class == Long::class -> LongLongChainedLinkedHashMap()
+    else -> error("Types ${K::class}, ${V::class} are not implemented.")
+} as MutableMap<K, V>

@@ -1,5 +1,6 @@
 package test.jmh.map
 
+import example.createChainedLinkedHashMap
 import example.createLinkedHashMap
 import example.createLinkedOpenHashMap
 
@@ -7,6 +8,7 @@ inline fun <reified K> createImplementation(name: String): TestingMap<K> = when 
     StdCollectionsMap.NAME -> StdCollectionsMap()
     MyMap.NAME -> MyMap(createLinkedHashMap())
     MyGenericMap.NAME -> MyGenericMap(createLinkedOpenHashMap())
+    MyChainedMap.NAME -> MyChainedMap(createChainedLinkedHashMap())
     else -> error("Unexpected implementation name: $name.")
 }
 
@@ -35,5 +37,11 @@ class MyMap<K>(override val map: MutableMap<K, K>) : AbstractTestingMap<K>() {
 class MyGenericMap<K>(override val map: MutableMap<K, K>) : AbstractTestingMap<K>() {
     companion object {
         const val NAME = "MY_GENERIC_MAP"
+    }
+}
+
+class MyChainedMap<K>(override val map: MutableMap<K, K>) : AbstractTestingMap<K>() {
+    companion object {
+        const val NAME = "MY_CHAINED_MAP"
     }
 }

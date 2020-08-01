@@ -15,7 +15,7 @@ abstract class JVMMap<T : Any> {
     @Param("get")
     protected open var bOperation = ""
 
-    @Param("STD", "MY_MAP", "FastUtil", "MY_GENERIC_MAP")
+    @Param("STD", "MY_MAP", "FastUtil", "MY_GENERIC_MAP", "MY_CHAINED_MAP")
     protected open var cMapName = ""
 
     protected lateinit var mapTest: MapTest<T>
