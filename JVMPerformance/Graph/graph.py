@@ -14,15 +14,16 @@ def read_file_txt(file_name):
         f.readline()
         for line in f:
             s = line.split()
-            if len(s) == 10:
-                name, sz, method, map_name, _, _, sc, _, _, m = s
+            if len(s) == 8:
+                name, sz, _, _, sc, _, _, m = s
                 y_label = 'Throughput, ' + m
+                name, map_name = name.split('.')
             elif len(s) == 7:
                 name, sz, method, map_name, _, sc, m = s
                 y_label = m
             else:
                 raise Exception("Unexpected line size")
-            fill_result(name, method, sz, map_name, sc, y_label)
+            fill_result(name, "get", sz, map_name, sc, y_label)
 
 
 def read_file_json(file_name):

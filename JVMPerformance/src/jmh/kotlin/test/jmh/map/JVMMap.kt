@@ -1,77 +1,71 @@
 package test.jmh.map
 
-import example.DEFAULT_CAPACITY
-import example.DEFAULT_LOAD_FACTOR
-import it.unimi.dsi.fastutil.ints.Int2IntLinkedOpenHashMap
+import example.*
 import it.unimi.dsi.fastutil.longs.Long2LongLinkedOpenHashMap
 import org.openjdk.jmh.annotations.*
-import org.openjdk.jol.info.GraphLayout
+import kotlin.random.Random
 
 @State(Scope.Thread)
 @Fork(1, jvmArgsAppend = ["-Xmx4G"])
-abstract class JVMMap<T : Any> {
+open class JVMMap {
 
-    @Param("10000", "31623", "100000", "316228", "1000000", "3162278", "10000000")
-    protected open var aSize = 0
+    @Param(
+        "10", "31", "100", "316", "1000", "3162",
+        "10000", "31623", "100000", "316228", "1000000", "3162278", "10000000"
+    )
+    open var size = 0
 
-    @Param("get")
-    protected open var bOperation = ""
+    open lateinit var keys: LongArray
 
-    @Param("STD", "MY_MAP", "FastUtil", "MY_GENERIC_MAP", "MY_CHAINED_MAP")
-    protected open var cMapName = ""
+    open var index = 0
 
-    protected lateinit var mapTest: MapTest<T>
-
-    @Setup
-    abstract fun setUp()
-}
-
-open class JVMLongMap : JVMMap<Long>() {
-    @Setup
-    override fun setUp() {
-        mapTest = createAndSetUpMapTest(aSize, bOperation, cMapName)
-    }
+    open val stdMap = linkedMapOf<Long, Long>()
+    open val myMap = createLinkedHashMap<Long, Long>()
+    open val myGenericMap = createLinkedOpenHashMap<Long, Long>()
+    open val chainedMap = createChainedLinkedHashMap<Long, Long>()
+    open val fastUtilMap: MutableMap<Long, Long> = Long2LongLinkedOpenHashMap(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR)
 
     @Benchmark
-    fun test() = mapTest.test()
-}
-
-open class JVMIntMap : JVMMap<Int>() {
-    @Setup
-    override fun setUp() {
-        mapTest = createAndSetUpMapTest(aSize, bOperation, cMapName)
-    }
+    fun std() = stdMap[keys[increment()]]
 
     @Benchmark
-    fun test() = mapTest.test()
-}
+    fun myMap() = myMap[keys[increment()]]
 
-private inline fun <reified T : Any> createAndSetUpMapTest(size: Int, operation: String, mapName: String): MapTest<T> {
-    val testingMap = createImplementationJVM<T>(mapName)
-    return createOperation<T>(operation).apply {
-        setUp(generateStorage(size), testingMap, ONE_FAIL_OUT_OF)
-    }.also {
-        val map = (testingMap as AbstractTestingMap).map
-        val layoutSize = GraphLayout.parseInstance(map).totalSize()
-        println("size = ${map.size} mem = $layoutSize")
+    @Benchmark
+    fun generic() = myGenericMap[keys[increment()]]
+
+    @Benchmark
+    fun chained() = chainedMap[keys[increment()]]
+
+    @Benchmark
+    fun fastUtil() = fastUtilMap[keys[increment()]]
+
+    @Setup
+    fun setUp() {
+        index = 0
+        keys = generateLongKeys(size)
+        val random = Random(42)
+        val maps = listOf(stdMap, myMap, myGenericMap, chainedMap, fastUtilMap)
+        for (map in maps) {
+            map.clear()
+        }
+        keys.forEachIndexed { i, v ->
+            val key = if (i % ONE_FAIL_OUT_OF == 0) random.nextLong() else v
+            for (map in maps) {
+                map[key] = v
+            }
+        }
+    }
+
+    private fun increment(): Int {
+        if (++index == size) {
+            index = 0
+        }
+        return index
+    }
+
+    private fun generateLongKeys(newSize: Int): LongArray {
+        val random = Random(newSize)
+        return LongArray(newSize) { random.nextLong() }
     }
 }
-
-private inline fun <reified K> createImplementationJVM(name: String): TestingMap<K> = if (name == FastUtilMap.NAME) {
-    FastUtilMap(createFastUtilMap())
-} else {
-    createImplementation(name)
-}
-
-private class FastUtilMap<K>(override val map: MutableMap<K, K>) : AbstractTestingMap<K>() {
-    companion object {
-        const val NAME = "FastUtil"
-    }
-}
-
-@Suppress("UNCHECKED_CAST", "IMPLICIT_CAST_TO_ANY")
-private inline fun <reified T> createFastUtilMap() = when (T::class) {
-    Long::class -> Long2LongLinkedOpenHashMap(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR)
-    Int::class -> Int2IntLinkedOpenHashMap()
-    else -> error("Type is not implemented")
-} as MutableMap<T, T>
