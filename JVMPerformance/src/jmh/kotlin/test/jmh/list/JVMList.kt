@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.longs.LongArrayList
 import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
 import org.openjdk.jol.info.GraphLayout
-import test.jmh.map.generateLongKeys
+import kotlin.random.Random
 
 @Suppress("FunctionName")
 @State(Scope.Thread)
@@ -55,5 +55,10 @@ open class JVMList {
     private fun printSize(name: String, o: Any) {
         val layoutSize = GraphLayout.parseInstance(o).totalSize()
         println("$name size = $size mem = $layoutSize")
+    }
+
+    private fun generateLongKeys(newSize: Int): LongArray {
+        val random = Random(newSize)
+        return LongArray(newSize) { random.nextLong() }
     }
 }
