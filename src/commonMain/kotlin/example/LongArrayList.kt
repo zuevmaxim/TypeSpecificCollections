@@ -42,7 +42,7 @@ class LongArrayList(private var capacity: Int = LIST_DEFAULT_CAPACITY) : Abstrac
     }
 
     private fun resize(expectedSize: Int = capacity) {
-        val list = LongArrayList(expectedSize * 2)
+        val list = LongArrayList(expectedSize + (expectedSize ushr 1))
         data.copyInto(list.data)
         data = list.data
         capacity = list.capacity
@@ -75,6 +75,55 @@ class LongArrayList(private var capacity: Int = LIST_DEFAULT_CAPACITY) : Abstrac
             throw IndexOutOfBoundsException("Index $index is out of bounds [0, $size].")
         }
     }
+
+    override fun iterator(): MutableIterator<Long> = LongListIterator(0)
+    override fun listIterator(): MutableListIterator<Long> = LongListIterator(0)
+    override fun listIterator(index: Int): MutableListIterator<Long> = LongListIterator(index)
+
+    private inner class LongListIterator(private var index: Int) : MutableListIterator<Long> {
+        init {
+            if (index < 0 || index > size) throw IndexOutOfBoundsException()
+        }
+
+        private var last = -1
+        override fun hasPrevious() = index > 0
+
+        override fun nextIndex() = index
+
+        override fun previous(): Long {
+            if (!hasPrevious()) throw NoSuchElementException()
+            last = --index
+            return data[last]
+        }
+
+        override fun previousIndex() = index - 1
+
+        override fun add(element: Long) {
+            last = -1
+            this@LongArrayList.add(index++, element)
+        }
+
+        override fun hasNext() = index < size
+
+        override fun next(): Long {
+            if (!hasNext()) throw NoSuchElementException()
+            last = index++
+            return data[last]
+        }
+
+        override fun remove() {
+            check(last != -1)
+            this@LongArrayList.removeAt(last)
+            if (last < index) --index
+            last = -1
+        }
+
+        override fun set(element: Long) {
+            check(last != -1)
+            data[last] = element
+        }
+
+    }
 }
 
-private const val LIST_DEFAULT_CAPACITY = 1
+private const val LIST_DEFAULT_CAPACITY = 10
