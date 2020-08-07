@@ -46,8 +46,20 @@ object GenericIntIntLinkedHashMapGuavaTest {
 @RunWith(AllTests::class)
 object LongLongChainedLinkedHashMapGuavaTest {
     @JvmStatic
-    fun suite() = LinkedHashMapGuavaTest()
-        .suite(LongLongHashMapTestGenerator { LongLongChainedLinkedHashMap() as MutableMap<Long?, Long?> })
+    fun suite(): TestSuite = MapTestSuiteBuilder
+        .using(LongLongHashMapTestGenerator { LongLongChainedLinkedHashMap() as MutableMap<Long?, Long?> })
+        .named("HashMap test suite")
+        .withFeatures(
+            CollectionSize.ANY,
+            CollectionFeature.SUPPORTS_REMOVE,
+            CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
+            CollectionFeature.KNOWN_ORDER,
+            CollectionFeature.FAILS_FAST_ON_CONCURRENT_MODIFICATION,
+            MapFeature.GENERAL_PURPOSE,
+            MapFeature.FAILS_FAST_ON_CONCURRENT_MODIFICATION
+        )
+        .suppressing(ignoredTests)
+        .createTestSuite()
 }
 
 class LinkedHashMapGuavaTest {
@@ -63,19 +75,18 @@ class LinkedHashMapGuavaTest {
         )
         .suppressing(ignoredTests)
         .createTestSuite()
-
-
-    private val ignoredTests = listOf(
-        getCollectionRemoveAllTesterTest("testRemoveAll_nullCollectionReferenceEmptySubject"),
-        getCollectionRemoveAllTesterTest("testRemoveAll_nullCollectionReferenceNonEmptySubject")
-    )
-
-    private fun getCollectionRemoveAllTesterTest(methodName: String) =
-        getTestMethodByName(CollectionRemoveAllTester::class.java, methodName)
-
-    private fun getTestMethodByName(clazz: Class<*>, methodName: String) =
-        clazz.getDeclaredMethod(methodName)
 }
+
+private val ignoredTests = listOf(
+    getCollectionRemoveAllTesterTest("testRemoveAll_nullCollectionReferenceEmptySubject"),
+    getCollectionRemoveAllTesterTest("testRemoveAll_nullCollectionReferenceNonEmptySubject")
+)
+
+private fun getCollectionRemoveAllTesterTest(methodName: String) =
+    getTestMethodByName(CollectionRemoveAllTester::class.java, methodName)
+
+private fun getTestMethodByName(clazz: Class<*>, methodName: String) =
+    clazz.getDeclaredMethod(methodName)
 
 private abstract class HashMapTestGenerator<K, V>(private val createMap: () -> MutableMap<K?, V?>) :
     TestMapGenerator<K?, V?> {

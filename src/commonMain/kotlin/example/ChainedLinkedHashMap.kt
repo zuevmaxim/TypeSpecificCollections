@@ -20,6 +20,7 @@ class LongLongChainedLinkedHashMap(
     private var links: Links
     private var next: IntArray
     private var freeLinks: FreeLinks
+    private var modificationCount = 0
 
     init {
         require(initialSize > 0) { "Capacity must be positive." }
@@ -59,6 +60,7 @@ class LongLongChainedLinkedHashMap(
             val newDataIndex = createNewNode(key, value)
             pointers[pointerIndex] = newDataIndex
             checkRehash()
+            modificationCount++
             return null
         } else {
             var lastIndex: Int
@@ -70,6 +72,7 @@ class LongLongChainedLinkedHashMap(
             val newIndex = createNewNode(key, value)
             next[lastIndex] = newIndex
             checkRehash()
+            modificationCount++
             return null
         }
     }
@@ -100,10 +103,12 @@ class LongLongChainedLinkedHashMap(
         freeLinks.release(foundIndex)
         links.remove(foundIndex)
         size--
+        modificationCount++
         return _values[foundIndex]
     }
 
     override fun clear() {
+        modificationCount++
         val map = LongLongChainedLinkedHashMap(loadFactor = loadFactor)
         swap(map)
     }
@@ -194,6 +199,7 @@ class LongLongChainedLinkedHashMap(
             elements.fold(false) { modified, element -> modified or remove(element) }
 
         private inner class LongLongIterator : MutableIterator<MutableMap.MutableEntry<Long, Long>> {
+            private var localModificationCount = modificationCount
             val iterator = links.iterator()
             private var lastReturned: LongLongEntry? = null
 
@@ -203,8 +209,9 @@ class LongLongChainedLinkedHashMap(
                 if (!hasNext()) {
                     throw NoSuchElementException()
                 }
+                checkModification()
                 val currentIndex = iterator.next()
-                return LongLongEntry(_keys[currentIndex]).also {
+                return LongLongEntry(currentIndex).also {
                     lastReturned = it
                 }
             }
@@ -214,13 +221,20 @@ class LongLongChainedLinkedHashMap(
                 check(last != null) { "Next method has not yet been called, or the remove method has already been called after the last call to the next method" }
                 lastReturned = null
                 this@LongLongChainedLinkedHashMap.remove(last.key)
+                localModificationCount = modificationCount
+            }
+
+            private fun checkModification() {
+                if (localModificationCount != modificationCount) {
+                    throw ConcurrentModificationException()
+                }
             }
         }
     }
 
-    private inner class LongLongEntry(override val key: Long) : MutableMap.MutableEntry<Long, Long> {
-        override val value: Long
-            get() = this@LongLongChainedLinkedHashMap[key]!!
+    private inner class LongLongEntry(private val index: Int) : MutableMap.MutableEntry<Long, Long> {
+        override val key: Long get() = _keys[index]
+        override val value: Long get() = _values[index]
 
         override fun setValue(newValue: Long): Long {
             return this@LongLongChainedLinkedHashMap.put(key, value)!!
