@@ -54,7 +54,9 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
     override val entries: MutableSet<MutableMap.MutableEntry<Long, Long>> = LongLongEntrySet()
 
     override fun clear() {
-        for (index in links) {
+        val it = links.fastIterator()
+        while (it.hasNext()) {
+            val index = it.next()
             if (index == capacity) continue
             _keys[index] = SPECIAL_KEY
         }
@@ -212,7 +214,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
             elements.fold(false) { modified, element -> modified or remove(element) }
 
         private inner class LongLongIterator : MutableIterator<MutableMap.MutableEntry<Long, Long>> {
-            val iterator = links.iterator()
+            val iterator = links.fastIterator()
             private var lastReturned: LongLongEntry? = null
 
             override fun hasNext() = iterator.hasNext()

@@ -200,7 +200,7 @@ class LongLongChainedLinkedHashMap(
 
         private inner class LongLongIterator : MutableIterator<MutableMap.MutableEntry<Long, Long>> {
             private var localModificationCount = modificationCount
-            val iterator = links.iterator()
+            val iterator = links.fastIterator()
             private var lastReturned: LongLongEntry? = null
 
             override fun hasNext() = iterator.hasNext()

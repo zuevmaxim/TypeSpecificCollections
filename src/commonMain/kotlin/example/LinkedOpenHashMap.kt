@@ -36,7 +36,9 @@ class LinkedOpenHashMap<K, V>(
 
     private constructor(original: LinkedOpenHashMap<K, V>) :
             this(original.createKeys, original.createValues, original.size, original.loadFactor) {
-        for (index in original.links) {
+        val it = original.links.fastIterator()
+        while (it.hasNext()) {
+            val index = it.next()
             if (index == original.capacity) {
                 _values.addSpecial(original._values.getSpecialOrNull()!!)
                 links.add(capacity)
@@ -69,7 +71,9 @@ class LinkedOpenHashMap<K, V>(
     }
 
     override fun clear() {
-        for (index in links) {
+        val it = links.fastIterator()
+        while (it.hasNext()) {
+            val index = it.next()
             if (index != capacity) {
                 _keys.markSpecial(index)
             }
@@ -218,7 +222,7 @@ class LinkedOpenHashMap<K, V>(
             elements.fold(false) { modified, element -> modified or remove(element) }
 
         private inner class LinkedOpenIterator : MutableIterator<MutableMap.MutableEntry<K, V>> {
-            val iterator = links.iterator()
+            val iterator = links.fastIterator()
             private var lastReturned: LinkedOpenEntry? = null
 
             override fun hasNext() = iterator.hasNext()

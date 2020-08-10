@@ -1,6 +1,6 @@
 package example
 
-internal class Links(private val capacity: Int) : Iterable<Int> {
+internal class Links(private val capacity: Int) {
     private val links = LongArray(capacity)
     private var head = NULL_LINK
     private var tail = NULL_LINK
@@ -59,8 +59,6 @@ internal class Links(private val capacity: Int) : Iterable<Int> {
         }
     }
 
-    override fun iterator(): Iterator<Int> = LinksIterator()
-
     private fun next(index: Int): Int {
         checkIndex(index)
         return (links[index] ushr SHIFT).toInt()
@@ -89,12 +87,14 @@ internal class Links(private val capacity: Int) : Iterable<Int> {
         require(index in 0 until capacity) { "Index $index is out of bounds [0, $capacity]" }
     }
 
-    private inner class LinksIterator : Iterator<Int> {
+    internal fun fastIterator() = FastLinksIterator()
+
+    internal inner class FastLinksIterator {
         private var current = head
 
-        override fun hasNext() = current != NULL_LINK
+        fun hasNext() = current != NULL_LINK
 
-        override fun next() = current.also {
+        fun next() = current.also {
             current = next(current)
         }
     }
