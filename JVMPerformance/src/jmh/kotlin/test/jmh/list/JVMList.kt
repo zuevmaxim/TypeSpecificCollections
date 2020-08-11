@@ -2,7 +2,6 @@ package test.jmh.list
 
 import it.unimi.dsi.fastutil.longs.LongArrayList
 import org.openjdk.jmh.annotations.*
-import org.openjdk.jmh.infra.Blackhole
 import org.openjdk.jol.info.GraphLayout
 import kotlin.random.Random
 
@@ -11,11 +10,14 @@ import kotlin.random.Random
 @Fork(1, jvmArgsAppend = ["-Xmx4G"])
 open class JVMList {
 
-    @Param("10000", "31623", "100000", "316228", "1000000", "3162278", "10000000")
+    @Param(
+        "10", "31", "100", "316", "1000", "3162",
+        "10000", "31623", "100000", "316228", "1000000", "3162278", "10000000"
+    )
     open var size = 0
 
     // STD
-    open val stdList = mutableListOf<Long>()
+    open val stdList: MutableList<Long> = mutableListOf()
 
     @Setup
     fun stdListSetUp() {
@@ -24,11 +26,11 @@ open class JVMList {
     }
 
     @Benchmark
-    fun _1StdListForeach(bh: Blackhole) = stdList.forEach { bh.consume(it) }
+    fun _1StdListForeach() = stdList.sum()
 
 
     // MY_LIST
-    open val myList = example.LongArrayList()
+    open val myList: MutableList<Long> = example.LongArrayList()
 
     @Setup
     fun setUpMyList() {
@@ -37,11 +39,11 @@ open class JVMList {
     }
 
     @Benchmark
-    fun _2MyListForeach(bh: Blackhole) = myList.forEach { bh.consume(it) }
+    fun _2MyListForeach() = myList.sum()
 
 
     // FASTUTIL
-    open val fastutilList = LongArrayList()
+    open val fastutilList: MutableList<Long> = LongArrayList()
 
     @Setup
     fun fastutilListSetUp() {
@@ -50,7 +52,7 @@ open class JVMList {
     }
 
     @Benchmark
-    fun _3FastutilListForeach(bh: Blackhole) = fastutilList.forEach { bh.consume(it) }
+    fun _3FastutilListForeach() = fastutilList.sum()
 
     private fun printSize(name: String, o: Any) {
         val layoutSize = GraphLayout.parseInstance(o).totalSize()
