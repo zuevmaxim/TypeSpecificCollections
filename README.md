@@ -94,7 +94,13 @@ Open addressing implementation of `MutableMap<K, V>` is [here](https://github.co
 
 TODO: plot here
 
-### Problem
+## ArrayList
+
+Implementation of `MutableList<Long, Long>` is [here](https://github.com/zuevmaxim/TypeSpecificCollections/blob/readme/src/commonMain/kotlin/example/LongArrayList.kt).
+
+All operations with ArrayList are very simple so there are problems with performance(see next section).
+
+## Problem
 
 Map, List and other interfaces from standard library require returning Object in all methods therefore extra boxing is needed everywhere. This critically worsens performance when:
 * ArrayList is used
@@ -112,3 +118,11 @@ When size of hash map is small one extra boxing takes large part of get executio
 | Big map sum   |![](images/JVMLongBigMapForeach.png "")|![](images/JVMLongBigMapForeachFactor.png "")|
 
 Foreach(or sum) is a cheap operation so extra boxings are fatal for performance.
+
+Profiler results of ArrayList sum:
+
+| Name     | Profile |
+|----------|---------|
+| Std      |![](images/StdProfile.png "")|
+| My list  |![](images/MyListProfile.png "")|
+| FastUtil |![](images/FastUtilProfile.png "")|
