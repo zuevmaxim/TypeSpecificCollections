@@ -66,7 +66,9 @@ Some other calculations of memory usage are [here](https://docs.google.com/sprea
 
 #### Performance(get)
 
-TODO: plot here
+![Open addressing vs Chained performance](images/JVMLongBigMapGet.png "Performance of get")
+
+When size of hash map is big enough we can see a great improvements in performance comparing with standard implementation.
 
 ### Other primitives
 
@@ -98,5 +100,10 @@ Map, List and other interfaces from standard library require returning Object in
 * ArrayList is used
 * size of hash map is small
 * operations like foreach are used
+
+![Open addressing vs Chained performance](images/JVMLongSmallMapGet.png "Performance of get")
+
+When size of hash map is small one extra boxing takes large part of get execution so standard implementation works better.
+
 
 TODO: plot here
