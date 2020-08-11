@@ -17,7 +17,7 @@ private const val N = 1000
 @Fork(1, jvmArgsAppend = ["-Xmx4G"])
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @OperationsPerInvocation(N)
-open class JVMLongSmallMap {
+open class JVMLongSmallMapGet {
 
     @Param("10", "31", "100", "316", "1000", "3162")
     open var size = 0
@@ -32,22 +32,22 @@ open class JVMLongSmallMap {
     open val fastUtilMap: MutableMap<Long, Long> = Long2LongLinkedOpenHashMap(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR)
 
     @Benchmark
-    fun _1_std(bh: Blackhole) = repeat(N) {
+    fun _1_Std(bh: Blackhole) = repeat(N) {
         bh.consume(stdMap[keys[increment()]])
     }
 
     @Benchmark
-    fun _2_myMap(bh: Blackhole) = repeat(N) {
+    fun _2_OpenAddressing(bh: Blackhole) = repeat(N) {
         bh.consume(myMap[keys[increment()]])
     }
 
     @Benchmark
-    fun _3_fastUtil(bh: Blackhole) = repeat(N) {
+    fun _3_FastUtil(bh: Blackhole) = repeat(N) {
         bh.consume(fastUtilMap[keys[increment()]])
     }
 
     @Benchmark
-    fun _4_chained(bh: Blackhole) = repeat(N) {
+    fun _4_Chained(bh: Blackhole) = repeat(N) {
         bh.consume(chainedMap[keys[increment()]])
     }
 

@@ -6,25 +6,18 @@ import example.createChainedLinkedHashMap
 import example.createLinkedHashMap
 import it.unimi.dsi.fastutil.longs.Long2LongLinkedOpenHashMap
 import org.openjdk.jmh.annotations.*
-import org.openjdk.jmh.infra.Blackhole
 import org.openjdk.jol.info.GraphLayout
-import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
-private const val N = 1000
 
 @State(Scope.Thread)
 @Fork(1, jvmArgsAppend = ["-Xmx4G"])
-@OutputTimeUnit(TimeUnit.MICROSECONDS)
-@OperationsPerInvocation(N)
-open class JVMLongBigMap {
+open class JVMLongSmallMapForeach {
 
-    @Param("10000", "31623", "100000", "316228", "1000000", "3162278", "10000000")
+    @Param("10", "31", "100", "316", "1000", "3162")
     open var size = 0
 
     open lateinit var keys: LongArray
-
-    open var index = 0
 
     open val stdMap = linkedMapOf<Long, Long>()
     open val myMap = createLinkedHashMap<Long, Long>()
@@ -32,28 +25,19 @@ open class JVMLongBigMap {
     open val fastUtilMap: MutableMap<Long, Long> = Long2LongLinkedOpenHashMap(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR)
 
     @Benchmark
-    fun _1_std(bh: Blackhole) = repeat(N) {
-        bh.consume(stdMap[keys[increment()]])
-    }
+    fun _1_Std() = stdMap.entries.sumBy { (it.key + it.value).toInt() }
 
     @Benchmark
-    fun _2_myMap(bh: Blackhole) = repeat(N) {
-        bh.consume(myMap[keys[increment()]])
-    }
+    fun _2_OpenAddressing() = myMap.entries.sumBy { (it.key + it.value).toInt() }
 
     @Benchmark
-    fun _3_fastUtil(bh: Blackhole) = repeat(N) {
-        bh.consume(fastUtilMap[keys[increment()]])
-    }
+    fun _3_FastUtil() = fastUtilMap.entries.sumBy { (it.key + it.value).toInt() }
 
     @Benchmark
-    fun _4_chained(bh: Blackhole) = repeat(N) {
-        bh.consume(chainedMap[keys[increment()]])
-    }
+    fun _4_Chained() = chainedMap.entries.sumBy { (it.key + it.value).toInt() }
 
     @Setup
     fun setUp() {
-        index = 0
         keys = generateLongKeys(size)
         val random = Random(42)
         val maps = listOf(stdMap, myMap, chainedMap, fastUtilMap)
@@ -70,13 +54,6 @@ open class JVMLongBigMap {
         printMemorySize("MyMap", myMap)
         printMemorySize("FastUtils", fastUtilMap)
         printMemorySize("Chained", chainedMap)
-    }
-
-    private fun increment(): Int {
-        if (++index == size) {
-            index = 0
-        }
-        return index
     }
 
     private fun generateLongKeys(newSize: Int): LongArray {
