@@ -21,6 +21,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
     /** Value mapped to [SPECIAL_KEY]. */
     private var specialKeyValue: Long = 0
     private var containsSpecialKey = false
+    private var modificationCount = 0
 
     init {
         require(initialCapacity > 0) { "Capacity must be positive." }
@@ -54,6 +55,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
     override val entries: MutableSet<MutableMap.MutableEntry<Long, Long>> = LongLongEntrySet()
 
     override fun clear() {
+        modificationCount++
         val it = links.fastIterator()
         while (it.hasNext()) {
             val index = it.next()
@@ -71,6 +73,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
             return specialKeyValueOrNull().also {
                 if (it == null) {
                     links.add(capacity)
+                    modificationCount++
                 }
                 containsSpecialKey = true
                 specialKeyValue = value
@@ -87,6 +90,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         _values[index] = value
         links.add(index)
         checkRehash()
+        modificationCount++
         return null
     }
 
@@ -95,6 +99,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
             return specialKeyValueOrNull().also {
                 if (it != null) {
                     links.remove(capacity)
+                    modificationCount++
                 }
                 containsSpecialKey = false
             }
@@ -108,6 +113,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         links.remove(index)
         shiftKeys(index)
         checkRehash()
+        modificationCount++
         return value
     }
 
@@ -179,12 +185,6 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
         }
     }
 
-    private fun keyByIndex(index: Int) = if (index == capacity) {
-        SPECIAL_KEY
-    } else {
-        _keys[index]
-    }
-
     private inner class LongLongEntrySet : AbstractMutableSet<MutableMap.MutableEntry<Long, Long>>() {
         override val size: Int
             get() = this@LongLongLinkedHashMap.size
@@ -214,6 +214,7 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
             elements.fold(false) { modified, element -> modified or remove(element) }
 
         private inner class LongLongIterator : MutableIterator<MutableMap.MutableEntry<Long, Long>> {
+            private var localModificationCount = modificationCount
             val iterator = links.fastIterator()
             private var lastReturned: LongLongEntry? = null
 
@@ -223,8 +224,9 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
                 if (!hasNext()) {
                     throw NoSuchElementException()
                 }
+                checkModification()
                 val currentIndex = iterator.next()
-                return LongLongEntry(keyByIndex(currentIndex)).also {
+                return LongLongEntry(currentIndex).also {
                     lastReturned = it
                 }
             }
@@ -234,13 +236,20 @@ class LongLongLinkedHashMap(initialCapacity: Int, private val loadFactor: Float)
                 check(last != null) { "Next method has not yet been called, or the remove method has already been called after the last call to the next method" }
                 lastReturned = null
                 this@LongLongLinkedHashMap.remove(last.key)
+                localModificationCount = modificationCount
+            }
+
+            private fun checkModification() {
+                if (localModificationCount != modificationCount) {
+                    throw ConcurrentModificationException()
+                }
             }
         }
     }
 
-    private inner class LongLongEntry(override val key: Long) : MutableMap.MutableEntry<Long, Long> {
-        override val value: Long
-            get() = this@LongLongLinkedHashMap[key]!!
+    private inner class LongLongEntry(private val index: Int) : MutableMap.MutableEntry<Long, Long> {
+        override val key: Long get() = if (index == capacity) SPECIAL_KEY else _keys[index]
+        override val value: Long get() = if (index == capacity) SPECIAL_KEY else _values[index]
 
         override fun setValue(newValue: Long): Long {
             return this@LongLongLinkedHashMap.put(key, value)!!

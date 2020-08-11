@@ -18,8 +18,20 @@ import org.junit.runners.AllTests
 @RunWith(AllTests::class)
 object LongLongLinkedHashMapGuavaTest {
     @JvmStatic
-    fun suite() = LinkedHashMapGuavaTest()
-        .suite(LongLongHashMapTestGenerator { createLinkedHashMap<Long, Long>() as MutableMap<Long?, Long?> })
+    fun suite(): TestSuite = MapTestSuiteBuilder
+        .using(LongLongHashMapTestGenerator { createLinkedHashMap<Long, Long>() as MutableMap<Long?, Long?> })
+        .named("HashMap test suite")
+        .withFeatures(
+            CollectionSize.ANY,
+            CollectionFeature.SUPPORTS_REMOVE,
+            CollectionFeature.SUPPORTS_ITERATOR_REMOVE,
+            CollectionFeature.KNOWN_ORDER,
+            CollectionFeature.FAILS_FAST_ON_CONCURRENT_MODIFICATION,
+            MapFeature.GENERAL_PURPOSE,
+            MapFeature.FAILS_FAST_ON_CONCURRENT_MODIFICATION
+        )
+        .suppressing(ignoredTests)
+        .createTestSuite()
 }
 
 @RunWith(AllTests::class)
