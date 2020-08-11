@@ -105,5 +105,10 @@ Map, List and other interfaces from standard library require returning Object in
 
 When size of hash map is small one extra boxing takes large part of get execution so standard implementation works better.
 
+| Name          | Absolute | Std slowness factor |
+|---------------|----------|---------------------|
+| List sum      |![](images/JVMListForeach.png "")|![](images/JVMListFactor.png "")|
+| Small map sum |![](images/JVMLongSmallMapForeach.png "")|![](images/JVMLongSmallMapForeachFactor.png "")|
+| Big map sum   |![](images/JVMLongBigMapForeach.png "")|![](images/JVMLongBigMapForeachFactor.png "")|
 
-TODO: plot here
+Foreach(or sum) is a cheap operation so extra boxings are fatal for performance.
