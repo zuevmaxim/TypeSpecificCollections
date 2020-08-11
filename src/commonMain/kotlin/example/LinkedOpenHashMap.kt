@@ -25,7 +25,7 @@ class LinkedOpenHashMap<K, V>(
     init {
         require(initialSize > 0) { "Capacity must be positive." }
         require(0 < loadFactor && loadFactor < 1) { "Load factor is out of bounds (0, 1)." }
-        val roundResult = chooseCapacityBySize(initialSize, loadFactor)
+        val roundResult = roundToPowerOfTwo(max(initialSize, DEFAULT_CAPACITY))
         capacity = roundResult.first
         power = roundResult.second
         mask = capacity - 1
@@ -34,8 +34,8 @@ class LinkedOpenHashMap<K, V>(
         links = Links(capacity + 1) // +1 for special key
     }
 
-    private constructor(original: LinkedOpenHashMap<K, V>) :
-            this(original.createKeys, original.createValues, original.size, original.loadFactor) {
+    private constructor(original: LinkedOpenHashMap<K, V>, initialSize: Int = original._size) :
+            this(original.createKeys, original.createValues, initialSize, original.loadFactor) {
         val it = original.links.fastIterator()
         while (it.hasNext()) {
             val index = it.next()
@@ -156,7 +156,7 @@ class LinkedOpenHashMap<K, V>(
 
     private fun checkRehash() {
         if (!shouldRehash()) return
-        val map = LinkedOpenHashMap(this)
+        val map = LinkedOpenHashMap(this, capacity shl 1)
         this.capacity = map.capacity
         this.power = map.power
         this.mask = map.mask
@@ -279,8 +279,3 @@ private fun roundToPowerOfTwo(x: Int): Pair<Int, Int> {
 }
 
 private const val PHI = 2654435761
-
-private fun chooseCapacityBySize(size: Int, loadFactor: Float): Pair<Int, Int> {
-    val (capacity, power) = roundToPowerOfTwo(max(size / loadFactor.toDouble(), 1.0).toInt())
-    return 2 * capacity to power + 1
-}
