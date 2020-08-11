@@ -74,6 +74,13 @@ Two possible implementations of other than long primitives were considered:
 * store everything as long and redirect all calls to LongLongMap
 * implement a generic version of hash map with specialized storage for primitive elements
 
+#### Long implementation redirecting
+
+* higher memory usage
+
+![Open addressing vs Chained average memory usage](images/OpenAddressingVsChainsLong.png "Average memory usage advantage")
+
+
 #### Generic implementation
 Idea: all memory advantages of specialized implementations are concentrated on a primitive array. Therefore we can wrap a primitive array and all work with primitive type into `Storage<T>` class.
 
