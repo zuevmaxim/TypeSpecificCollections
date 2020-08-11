@@ -96,6 +96,10 @@ TODO: plot here
 
 ## ArrayList
 
+Memory advantage is 2.5-3 times.
+
+![](images/JVMListMemory.png "ArrayList memory")
+
 Implementation of `MutableList<Long, Long>` is [here](https://github.com/zuevmaxim/TypeSpecificCollections/blob/readme/src/commonMain/kotlin/example/LongArrayList.kt).
 
 All operations with ArrayList are very simple so there are problems with performance(see next section).
