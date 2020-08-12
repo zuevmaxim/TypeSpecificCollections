@@ -92,7 +92,9 @@ Idea: all memory advantages of specialized implementations are concentrated on a
 
 Open addressing implementation of `MutableMap<K, V>` is [here](https://github.com/zuevmaxim/TypeSpecificCollections/blob/master/src/commonMain/kotlin/example/LinkedOpenHashMap.kt).
 
-TODO: plot here
+![Generic vs long redirecting](images/JVMIntSmallMapGet.png)
+
+![Generic vs long redirecting](images/JVMIntBigMapGet.png)
 
 ## ArrayList
 
