@@ -26,7 +26,7 @@ Implementation of `MutableMap<Long, Long>` is [here](https://github.com/zuevmaxi
 Advantages:
 * better operating with a cache as it uses only one array for navigating
 * smaller memory usage in case of big load factor
-* could be used for Object map implementation
+* could be used for Object map implementation with some advantage in memory
 
 Disadvantages:
 * problems with collisions as all elements are stored sequentially in one array
