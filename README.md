@@ -132,3 +132,9 @@ Profiler results of ArrayList sum:
 | Std      |![](images/StdProfile.png "")|
 | My list  |![](images/MyListProfile.png "")|
 | FastUtil |![](images/FastUtilProfile.png "")|
+
+The problem could be solved if special methods like `getOrDefault` are used:
+
+![](images/jvm_getOrDefault_long_small.png "getOrDefault performance")
+
+![](images/jvm_getOrDefault_long_big.png "getOrDefault performance")
