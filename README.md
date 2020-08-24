@@ -37,6 +37,8 @@ Disadvantages:
 
 Idea: store fields of nodes from standard implementation in several arrays(keys, values, next).
 
+![Chained implementation](images/Chained.png "Chained implementation")
+
 Implementation of `MutableMap<Long, Long>` is [here](https://github.com/zuevmaxim/TypeSpecificCollections/blob/master/src/commonMain/kotlin/example/ChainedLinkedHashMap.kt).
 
 Advantages:
