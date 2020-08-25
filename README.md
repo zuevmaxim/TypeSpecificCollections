@@ -140,3 +140,15 @@ The problem could be solved if special methods like `getOrDefault` are used:
 ![](images/jvm_getOrDefault_long_small.png "getOrDefault performance")
 
 ![](images/jvm_getOrDefault_long_big.png "getOrDefault performance")
+
+### Kotlin Native
+
+Kotlin native benchmarks differ for `get` and stay the same for `foreach`.
+
+![](images/native_LongSmallMapGet.png "")
+
+![](images/native_LongBigMapGet.png "")
+
+![](images/native_LongSmallMapForeach.png "")
+
+![](images/native_LongBigMapForeach.png "")

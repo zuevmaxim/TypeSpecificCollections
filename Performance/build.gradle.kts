@@ -24,19 +24,6 @@ kotlin {
                 implementation(kotlin("test-annotations-common"))
             }
         }
-        jvm {
-            compilations["main"].defaultSourceSet {
-                dependencies {
-                    implementation(kotlin("stdlib-jdk8"))
-                    implementation("org.jetbrains.kotlinx:kotlinx.benchmark.runtime-jvm:$kotlinxBenchmarkVersion")
-                }
-            }
-            compilations["test"].defaultSourceSet {
-                dependencies {
-                    implementation(kotlin("test-junit"))
-                }
-            }
-        }
         js {
             nodejs()
             compilations["main"].defaultSourceSet {
@@ -70,7 +57,6 @@ kotlin {
 
 benchmark {
     targets {
-        register("jvm")
         register("js")
         register("macosX64")
         register("linuxX64")

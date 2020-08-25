@@ -31,15 +31,14 @@ def read_file_json(file_name):
         data = json.load(f)
     for res in data:
         name = res["benchmark"]
+        name, map_name = name.split('.')[3:5]
         params = res["params"]
-        sz = params["aSize"]
-        method = params["bOperation"]
-        map_name = params["cMapName"]
+        sz = params["size"]
         metric = res["primaryMetric"]
         sc = metric["score"]
         m = metric["scoreUnit"]
         y_label = 'Throughput, ' + m
-        fill_result(name, method, sz, map_name, sc, y_label)
+        fill_result(name, "get", sz, map_name[3:], sc, y_label)
 
 
 def fill_result(name, method, sz, map_name, sc, y_label):
